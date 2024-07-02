@@ -1,0 +1,226 @@
+syntax = 'proto3';
+
+package com.ssinchenko.proto;
+
+option java_multiple_files = true;
+option java_package = "com.ssinchenko.proto";
+option java_generate_equals_and_hash = true;
+
+message Analyzer {
+  // Not all the analyzers are compatible with AnomalyDetection!
+  oneof analyzer {
+    ApproxCountDistinct approx_count_distinct = 1;
+    ApproxQuantile approx_quantile = 2;
+    ApproxQuantiles approx_quantiles = 3;
+    ColumnCount column_count = 4;
+    Completeness completeness = 5;
+    Compliance compliance = 6;
+    Correlation correlation = 7;
+    CountDistinct count_distinct = 8;
+    CustomSql custom_sql = 9;
+    DataType data_type = 10;
+    Distinctness distinctness = 11;
+    Entropy entropy = 12;
+    ExactQuantile exact_quantile = 13;
+    Histogram histogram = 14;
+    KLLSketch kll_sketch = 15;
+    MaxLength max_length = 16;
+    Maximum maximum = 17;
+    Mean mean = 18;
+    MinLength min_length = 19;
+    Minimum minimum = 20;
+    MutualInformation mutual_information = 21;
+    PatternMatch pattern_match = 22;
+    RatioOfSums ratio_of_sums = 23;
+    Size size = 24;
+    StandardDeviation standard_deviation = 25;
+    Sum sum = 26;
+    UniqueValueRatio unique_value_ratio = 27;
+    Uniqueness uniqueness = 28;
+  }
+}
+
+message AnalyzerOptions {
+  NullBehaviour null_behaviour = 1;
+  FilteredRowOutcome filtered_row_outcome = 2;
+
+  enum NullBehaviour {
+    Ignore = 0;
+    EmptyString = 1;
+    Fail = 2;
+  }
+  enum FilteredRowOutcome {
+    NULL = 0;
+    TRUE = 1;
+  }
+}
+
+message ApproxCountDistinct {
+  string column = 1;
+  optional string where = 2;
+}
+
+message ApproxQuantile {
+  string column = 1;
+  double quantile = 2;
+  optional double relative_error = 3;
+  optional string where = 4;
+}
+
+message ApproxQuantiles {
+  string column = 1;
+  repeated double quantiles = 2;
+  optional double relative_error = 3;
+}
+
+message ColumnCount {}
+
+message Completeness {
+  string column = 1;
+  optional string where = 2;
+  AnalyzerOptions options = 3;
+}
+
+message Compliance {
+  string instance = 1;
+  string predicate = 2;
+  optional string where = 3;
+  repeated string columns = 4;
+  optional AnalyzerOptions options = 5;
+}
+
+message Correlation {
+  string first_column = 1;
+  string second_column = 2;
+  optional string where = 3;
+}
+
+message CountDistinct {
+  repeated string columns = 1;
+}
+
+message CustomSql {
+  string expressions = 1;
+}
+
+// TODO: This one looks broken; todo revisit the code of Deequ
+message DataType {
+  string column = 1;
+  optional string where = 2;
+}
+
+// TODO: DatasetMatchAnalyzer
+
+message Distinctness {
+  repeated string columns = 1;
+  optional string where = 2;
+}
+
+message Entropy {
+  string column = 1;
+  optional string where = 2;
+}
+
+message ExactQuantile {
+  string column = 1;
+  double quantile = 2;
+  optional string where = 3;
+}
+
+message Histogram {
+  string column = 1;
+  // TODO: binningUdf; how to serialize it?
+  optional int32 max_detail_bins = 2;
+  optional string where = 3;
+  optional bool compute_frequencies_as_ratio = 4;
+  optional AggregateFunction aggregate_function = 5;
+
+  enum AggregateFunction {
+    Count = 0;
+    Sum = 1;
+  }
+}
+
+message KLLSketch {
+  string column = 1;
+  optional KLLParameters kll_parameters = 2;
+
+  message KLLParameters {
+    int32 sketch_size = 1;
+    double shrinking_factor = 2;
+    int32 number_of_buckets = 3;
+  }
+}
+
+message MaxLength {
+  string column = 1;
+  optional string where = 2;
+  optional AnalyzerOptions options = 3;
+}
+
+message Maximum {
+  string column = 1;
+  optional string where = 2;
+  optional AnalyzerOptions options = 3;
+}
+
+message Mean {
+  string column = 1;
+  optional string where = 2;
+}
+
+message MinLength {
+  string column = 1;
+  optional string where = 2;
+  optional AnalyzerOptions options = 3;
+}
+
+message Minimum {
+  string column = 1;
+  optional string where = 2;
+  optional AnalyzerOptions options = 3;
+}
+
+message MutualInformation {
+  repeated string columns = 1;
+  optional string where = 2;
+}
+
+message PatternMatch {
+  string column = 1;
+  string pattern = 2; // scala.util.matching.Regex in Deequ; passed as is
+  optional string where = 3;
+  optional AnalyzerOptions options = 4;
+}
+
+message RatioOfSums {
+  string numerator = 1;
+  string denominator = 2;
+  optional string where = 3;
+}
+
+message Size {
+  optional string where = 1;
+}
+
+message StandardDeviation {
+  string column = 1;
+  optional string where = 2;
+}
+
+message Sum {
+  string column = 1;
+  optional string where = 2;
+}
+
+message UniqueValueRatio {
+  repeated string columns = 1;
+  optional string where = 2;
+  optional AnalyzerOptions options = 3;
+}
+
+message Uniqueness {
+  repeated string columns = 1;
+  optional string where = 2;
+  optional AnalyzerOptions options = 3;
+}
