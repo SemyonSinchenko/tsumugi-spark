@@ -51,6 +51,27 @@ class DeequSuiteBuilderTest extends AnyFunSuiteLike with BeforeAndAfterAll {
       )
     val completenessMetric = VerificationSuite().onData(data).addRequiredAnalyzer(completeness).run().metrics
     assert(completenessMetric.head._2.value.get == 1.0)
+
+    val approxCountDistinct = DeequSuiteBuilder.parseAnalyzer(
+      proto.Analyzer
+        .newBuilder()
+        .setApproxCountDistinct(proto.ApproxCountDistinct.newBuilder().setColumn("id").build())
+        .build()
+    )
+    val approxCountDistinctMetric =
+      VerificationSuite().onData(data).addRequiredAnalyzer(approxCountDistinct).run().metrics
+    assert(approxCountDistinctMetric.head._2.value.get == 5.0)
+
+    val compliance = DeequSuiteBuilder.parseAnalyzer(
+      proto.Analyzer
+        .newBuilder()
+        .setCompliance(
+          proto.Compliance.newBuilder().setInstance("Thingy A occ").setPredicate("productName = 'Thingy A'").build()
+        )
+        .build()
+    )
+    val complianceMetric = VerificationSuite().onData(data).addRequiredAnalyzer(compliance).run().metrics
+    assert(complianceMetric.head._2.value.get == 0.2)
   }
 
   test("testProtoToVerificationSuite") {
