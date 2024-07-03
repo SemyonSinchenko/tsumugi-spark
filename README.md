@@ -46,3 +46,35 @@ While Amazon Deequ itself is very well maintained, the existing PyDeequ wrapper 
 `tsumugi-server/src/main/scala/com/ssinchenko/DeequSuiteBuilder.scala` contains a code, that creates Deequ objects from protobuf messages. It maps enums and constants into enums and constants of Deequ, creates `com.amazon.deequ` objects from the corresponding protobuf messages. Returns a ready to use Deequ top-level structure.
 
 
+## Getting Started
+
+At the moment there is no CI/CD, release, or python package. To run an example to the following (assumed POSIX system):
+
+1. Build Tsumugi Server Plugin:
+   a. `cd tsumugi-server`
+   b. `mvn clean package -DskipTests`
+2. Download and unpack Apache Spark 3.5.1:
+   a. `wget https://www.apache.org/dyn/closer.lua/spark/spark-3.5.1/spark-3.5.1-bin-hadoop3.tgz`
+   b. `tar -xaf tar -xvf spark-3.5.1-bin-hadoop3.tgz`
+3. Go to the unpacked spark folder and do the following:
+   a. Copy tsumugi jar here: `cp ../tsumugi-server/target/tsumugi-server-1.0-SNAPSHOT.jar ./`
+   b. Download Deequ jar: `wget https://repo1.maven.org/maven2/com/amazon/deequ/deequ/2.0.7-spark-3.5/deequ-2.0.7-spark-3.5.jar`
+   c. Download Protobuf Java Runtime: `wget https://repo1.maven.org/maven2/com/google/protobuf/protobuf-java/3.25.1/protobuf-java-3.25.1.jar`
+4. In the spark folder create a bash script `run-connect.sh` with the following code:
+
+```sh
+./sbin/start-connect-server.sh \
+  --wait \
+  --verbose \
+  --jars tsumugi-server-1.0-SNAPSHOT.jar,protobuf-java-3.25.1.jar,deequ-2.0.7-spark-3.5.jar \
+  --conf spark.connect.extensions.relation.classes=org.apache.spark.sql.DeequConnectPlugin \
+  --packages org.apache.spark:spark-connect_2.12:3.5.1
+```
+
+5. Run `sh run-connect.sh` that will start a SparkConnect Server with Tsumugi plugin and Deequ library in the ClassPath.
+6. Go back to the root of the project: `cd ..`
+7. Install `pyspark[connect]==3.5.1`:
+   a. `python3.10 -m venv .venv`
+   b. `source .venv/bin/activate`
+   c. `pip install pyspark[connect]==3.5.1`
+8. Run `base_example.py`: `python tsumugi_python/examples/base_example.py` and enjoy it!
