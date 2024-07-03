@@ -1,6 +1,7 @@
 package com.ssinchenko
 
 import com.amazon.deequ.VerificationSuite
+import com.amazon.deequ.analyzers
 import com.amazon.deequ.checks.CheckStatus
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.sql.types.{LongType, StringType, StructField, StructType}
@@ -42,26 +43,16 @@ class DeequSuiteBuilderTest extends AnyFunSuiteLike with BeforeAndAfterAll {
 
     val size =
       DeequSuiteBuilder.parseAnalyzer(proto.Analyzer.newBuilder().setSize(proto.Size.newBuilder().build()).build())
-    val sizeMetric = VerificationSuite().onData(data).addRequiredAnalyzer(size).run().metrics
-    assert(sizeMetric.head._2.value.get == 5.0)
-
     val completeness =
       DeequSuiteBuilder.parseAnalyzer(
         proto.Analyzer.newBuilder().setCompleteness(proto.Completeness.newBuilder().setColumn("id").build()).build()
       )
-    val completenessMetric = VerificationSuite().onData(data).addRequiredAnalyzer(completeness).run().metrics
-    assert(completenessMetric.head._2.value.get == 1.0)
-
     val approxCountDistinct = DeequSuiteBuilder.parseAnalyzer(
       proto.Analyzer
         .newBuilder()
         .setApproxCountDistinct(proto.ApproxCountDistinct.newBuilder().setColumn("id").build())
         .build()
     )
-    val approxCountDistinctMetric =
-      VerificationSuite().onData(data).addRequiredAnalyzer(approxCountDistinct).run().metrics
-    assert(approxCountDistinctMetric.head._2.value.get == 5.0)
-
     val compliance = DeequSuiteBuilder.parseAnalyzer(
       proto.Analyzer
         .newBuilder()
@@ -70,8 +61,52 @@ class DeequSuiteBuilderTest extends AnyFunSuiteLike with BeforeAndAfterAll {
         )
         .build()
     )
-    val complianceMetric = VerificationSuite().onData(data).addRequiredAnalyzer(compliance).run().metrics
-    assert(complianceMetric.head._2.value.get == 0.2)
+    val columnCount = DeequSuiteBuilder.parseAnalyzer(
+      proto.Analyzer
+        .newBuilder()
+        .setColumnCount(
+          proto.ColumnCount.newBuilder().build()
+        )
+        .build()
+    )
+    val approxQuantile = DeequSuiteBuilder.parseAnalyzer(
+      proto.Analyzer
+        .newBuilder()
+        .setApproxQuantile(
+          proto.ApproxQuantile.newBuilder().setColumn("numViews").setQuantile(0.5).build()
+        )
+        .build()
+    )
+    val sum = DeequSuiteBuilder.parseAnalyzer(
+      proto.Analyzer
+        .newBuilder()
+        .setSum(
+          proto.Sum.newBuilder().setColumn("numViews").build()
+        )
+        .build()
+    )
+
+    val metrics = VerificationSuite()
+      .onData(data)
+      .addRequiredAnalyzers(
+        Seq(size, completeness, approxCountDistinct, compliance, columnCount, approxQuantile, sum)
+      )
+      .run()
+      .metrics
+
+    assert(
+      metrics.forall(p =>
+        p._1 match {
+          case _: analyzers.Size                => p._2.value.get == 5.0
+          case _: analyzers.Completeness        => p._2.value.get == 1.0
+          case _: analyzers.ApproxCountDistinct => p._2.value.get == 5.0
+          case _: analyzers.Compliance          => p._2.value.get == 0.2
+          case _: analyzers.ColumnCount         => p._2.value.get == 5.0
+          case _: analyzers.ApproxQuantile      => p._2.value.get == 5.0
+          case _: analyzers.Sum                 => p._2.value.get == 27.0
+        }
+      )
+    )
   }
 
   test("testProtoToVerificationSuite") {

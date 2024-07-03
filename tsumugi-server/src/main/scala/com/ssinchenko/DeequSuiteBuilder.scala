@@ -153,50 +153,62 @@ object DeequSuiteBuilder {
         val protoAnalyzer = analyzer.getKllSketch
         KLLSketch(
           protoAnalyzer.getColumn,
-          Option(protoAnalyzer.getKllParameters).map(p =>
-            KLLParameters(p.getSketchSize, p.getShrinkingFactor, p.getNumberOfBuckets)
-          )
+          if (protoAnalyzer.hasKllParameters)
+            Some(
+              KLLParameters(
+                protoAnalyzer.getKllParameters.getSketchSize,
+                protoAnalyzer.getKllParameters.getShrinkingFactor,
+                protoAnalyzer.getKllParameters.getNumberOfBuckets
+              )
+            )
+          else Option.empty
         )
       case proto.Analyzer.AnalyzerCase.MAX_LENGTH =>
         val protoAnalyzer = analyzer.getMaxLength
         MaxLength(
           protoAnalyzer.getColumn,
-          Option(protoAnalyzer.getWhere),
+          if (protoAnalyzer.hasWhere) Some(protoAnalyzer.getWhere) else Option.empty,
           parseAnalyzerOptions(Option(protoAnalyzer.getOptions))
         )
       case proto.Analyzer.AnalyzerCase.MAXIMUM =>
         val protoAnalyzer = analyzer.getMaximum
         Maximum(
           protoAnalyzer.getColumn,
-          Option(protoAnalyzer.getWhere),
+          if (protoAnalyzer.hasWhere) Some(protoAnalyzer.getWhere) else Option.empty,
           parseAnalyzerOptions(Option(protoAnalyzer.getOptions))
         )
       case proto.Analyzer.AnalyzerCase.MEAN =>
         val protoAnalyzer = analyzer.getMean
-        Mean(protoAnalyzer.getColumn, Option(protoAnalyzer.getWhere))
+        Mean(
+          protoAnalyzer.getColumn,
+          if (protoAnalyzer.hasWhere) Some(protoAnalyzer.getWhere) else Option.empty
+        )
       case proto.Analyzer.AnalyzerCase.MIN_LENGTH =>
         val protoAnalyzer = analyzer.getMinLength
         MinLength(
           protoAnalyzer.getColumn,
-          Option(protoAnalyzer.getWhere),
+          if (protoAnalyzer.hasWhere) Some(protoAnalyzer.getWhere) else Option.empty,
           parseAnalyzerOptions(Option(protoAnalyzer.getOptions))
         )
       case proto.Analyzer.AnalyzerCase.MINIMUM =>
         val protoAnalyzer = analyzer.getMinimum
         Minimum(
           protoAnalyzer.getColumn,
-          Option(protoAnalyzer.getWhere),
+          if (protoAnalyzer.hasWhere) Some(protoAnalyzer.getWhere) else Option.empty,
           parseAnalyzerOptions(Option(protoAnalyzer.getOptions))
         )
       case proto.Analyzer.AnalyzerCase.MUTUAL_INFORMATION =>
         val protoAnalyzer = analyzer.getMutualInformation
-        MutualInformation(protoAnalyzer.getColumnsList.asScala.toSeq, Option(protoAnalyzer.getWhere))
+        MutualInformation(
+          protoAnalyzer.getColumnsList.asScala.toSeq,
+          if (protoAnalyzer.hasWhere) Some(protoAnalyzer.getWhere) else Option.empty
+        )
       case proto.Analyzer.AnalyzerCase.PATTERN_MATCH =>
         val protoAnalyzer = analyzer.getPatternMatch
         PatternMatch(
           protoAnalyzer.getColumn,
           protoAnalyzer.getPattern.r,
-          Option(protoAnalyzer.getWhere),
+          if (protoAnalyzer.hasWhere) Some(protoAnalyzer.getWhere) else Option.empty,
           parseAnalyzerOptions(Option(protoAnalyzer.getOptions))
         )
       case proto.Analyzer.AnalyzerCase.RATIO_OF_SUMS =>
@@ -204,28 +216,34 @@ object DeequSuiteBuilder {
         RatioOfSums(
           protoAnalyzer.getNumerator,
           protoAnalyzer.getDenominator,
-          Option(protoAnalyzer.getWhere)
+          if (protoAnalyzer.hasWhere) Some(protoAnalyzer.getWhere) else Option.empty
         )
       case proto.Analyzer.AnalyzerCase.SIZE =>
         Size(if (analyzer.getSize.hasWhere) Some(analyzer.getSize.getWhere) else Option.empty)
       case proto.Analyzer.AnalyzerCase.STANDARD_DEVIATION =>
         val protoAnalyzer = analyzer.getStandardDeviation
-        StandardDeviation(protoAnalyzer.getColumn, Option(protoAnalyzer.getWhere))
+        StandardDeviation(
+          protoAnalyzer.getColumn,
+          if (protoAnalyzer.hasWhere) Some(protoAnalyzer.getWhere) else Option.empty
+        )
       case proto.Analyzer.AnalyzerCase.SUM =>
         val protoAnalyzer = analyzer.getSum
-        Sum(protoAnalyzer.getColumn, Option(protoAnalyzer.getWhere))
+        Sum(
+          protoAnalyzer.getColumn,
+          if (protoAnalyzer.hasWhere) Some(protoAnalyzer.getWhere) else Option.empty
+        )
       case proto.Analyzer.AnalyzerCase.UNIQUE_VALUE_RATIO =>
         val protoAnalyzer = analyzer.getUniqueValueRatio
         UniqueValueRatio(
           protoAnalyzer.getColumnsList.asScala.toSeq,
-          Option(protoAnalyzer.getWhere),
+          if (protoAnalyzer.hasWhere) Some(protoAnalyzer.getWhere) else Option.empty,
           parseAnalyzerOptions(Option(protoAnalyzer.getOptions))
         )
       case proto.Analyzer.AnalyzerCase.UNIQUENESS =>
         val protoAnalyzer = analyzer.getUniqueness
         Uniqueness(
           protoAnalyzer.getColumnsList.asScala.toSeq,
-          Option(protoAnalyzer.getWhere),
+          if (protoAnalyzer.hasWhere) Some(protoAnalyzer.getWhere) else Option.empty,
           parseAnalyzerOptions(Option(protoAnalyzer.getOptions))
         )
       case _ => throw new RuntimeException(s"Unsupported Analyzer Type ${analyzer.getAnalyzerCase.name}")
