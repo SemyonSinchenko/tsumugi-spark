@@ -25,4 +25,24 @@ While Amazon Deequ itself is very well maintained, the existing PyDeequ wrapper 
 
 - Creating just another low-code / zero-code Data Quality tool: Deequ Scala is a very cool, Apache Spark Native, Data Quality engine that allows to compute a lot of things on scale. Anyone can create own `yaml` / `json` parametrization, dahsboards, or any other drag-n-drop low-code solution using Deequ.
 
+## Project structure
+
+### Protobuf messages
+
+`tsumugi-server/src/main/protobuf/` contains messages that define the main structures of Deequ Scala library:
+
+- `VerificationSuite` as a top-level Deequ object. See `suite.proto` for details;
+- `Analyzer` object that is defined using `oneof` from list of analyzers (`CountDistinct`, `Size`, `Compliance`, etc.). See `analyzers.proto` for details of the implementation;
+- `AnaomalyDetection` and strategies of anomaly detection. See `strategies.proto` for details;
+- `Check` that is defined using `Constraint`, `CheckLevel` and description;
+- `Constraint` itself that is defined as an Analyzer (that computes a metric), a reference value and a comparison sign;
+
+### SparkConnect Plugin
+
+`tsumugi-server/src/main/scala/org/apache/spark/sql/DeequConnectPlugin.scala` contains the plugin itself code. It is made very simple, about 50 lines of code. It just checks if the message is `VerificationSuite`, passes it into `DeequSuiteBuilder` and after that packs it back to `Relation`.
+
+### Deequ Suite Builder
+
+`tsumugi-server/src/main/scala/com/ssinchenko/DeequSuiteBuilder.scala` contains a code, that creates Deequ objects from protobuf messages. It maps enums and constants into enums and constants of Deequ, creates `com.amazon.deequ` objects from the corresponding protobuf messages. Returns a ready to use Deequ top-level structure.
+
 
