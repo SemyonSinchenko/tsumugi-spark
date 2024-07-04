@@ -10,6 +10,3 @@ plugins:
     out: tsumugi_python/tsumugi/proto/
   - remote: buf.build/protocolbuffers/pyi
     out: tsumugi_python/tsumugi/proto/
-  # Go API
-  - remote: buf.build/protocolbuffers/go:v1.34.2
-    out: tsumugi_golang/
