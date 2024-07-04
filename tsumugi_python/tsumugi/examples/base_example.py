@@ -11,14 +11,10 @@ from pyspark.sql.connect.session import SparkSession
 
 # TODO: that is a workaround because I'm a newbie in py-proto;
 # The problem is in relative-imports.
-proj_root = Path(__file__).parent.parent.parent
-sys.path.append(proj_root.absolute().__str__())
-sys.path.append(
-    proj_root.joinpath("tsumugi_python").joinpath("proto").absolute().__str__()
-)
-from tsumugi_python.proto import analyzers_pb2 as analyzers  # noqa: E402
-from tsumugi_python.proto import suite_pb2 as base  # noqa: E402
-from tsumugi_python.proto import strategies_pb2 as strategies  # noqa: E402
+proj_root = Path(__file__).parent.parent
+sys.path.append(proj_root.joinpath("proto").absolute().__str__())
+from tsumugi.proto import analyzers_pb2 as analyzers  # noqa: E402
+from tsumugi.proto import suite_pb2 as base  # noqa: E402
 
 if __name__ == "__main__":
     spark: SparkSession = SparkSession.builder.remote(
