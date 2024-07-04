@@ -3,9 +3,13 @@ managed:
   enabled: true
 
 plugins:
+  # Python API
   - remote: buf.build/grpc/python:v1.64.2
     out: tsumugi_python/proto/
   - remote: buf.build/protocolbuffers/python:v27.1
     out: tsumugi_python/proto/
   - remote: buf.build/protocolbuffers/pyi
     out: tsumugi_python/proto/
+  # Go API
+  - remote: buf.build/protocolbuffers/go:v1.34.2
+    out: tsumugi_golang/

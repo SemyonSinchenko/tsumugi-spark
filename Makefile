@@ -3,7 +3,8 @@
 all: help
 
 generate_code:
-	rm -r tsumugi_python/proto/*
+	rm -r tsumugi_golang/tsumugi/proto/* || true
+	rm -r tsumugi_python/proto/* || true
 	buf generate
 
 help:

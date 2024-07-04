@@ -5,6 +5,7 @@ package com.ssinchenko.proto;
 option java_multiple_files = true;
 option java_package = "com.ssinchenko.proto";
 option java_generate_equals_and_hash = true;
+option go_package = "tsumugi/proto";
 
 message Analyzer {
   // Not all the analyzers are compatible with AnomalyDetection!
