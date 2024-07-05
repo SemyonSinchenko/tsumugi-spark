@@ -1,0 +1,109 @@
+<mxfile host="Electron" modified="2024-07-05T13:13:21.829Z" agent="Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.6.4 Chrome/124.0.6367.207 Electron/30.0.6 Safari/537.36" etag="iHoVL8Jp5gSHPBuEKvDs" version="24.6.4" type="device">
+  <diagram name="Page-1" id="ZamENQOMSdX0vjcHdMKe">
+    <mxGraphModel dx="1434" dy="959" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-7" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="9Wz8_fLrM5fIn5AwhpO7-3" target="9Wz8_fLrM5fIn5AwhpO7-6">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-3" value="Batch of Data&lt;div&gt;/&lt;/div&gt;&lt;div&gt;Stream of Data&lt;/div&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="340" width="170" height="120" as="geometry" />
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-9" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="9Wz8_fLrM5fIn5AwhpO7-6" target="9Wz8_fLrM5fIn5AwhpO7-8">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-6" value="Apache Spark Cluster" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="293" y="335" width="265" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-8" value="Metrics&lt;div&gt;/&lt;/div&gt;&lt;div&gt;Checks&lt;/div&gt;&lt;div&gt;/&lt;/div&gt;&lt;div&gt;Anomaly Detection&lt;/div&gt;" style="shape=process;whiteSpace=wrap;html=1;backgroundOutline=1;" vertex="1" parent="1">
+          <mxGeometry x="640" y="345" width="180.5" height="110" as="geometry" />
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-10" value="Deequ Scala Cor&lt;span style=&quot;background-color: initial;&quot;&gt;e&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;&lt;div&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;&lt;br&gt;&lt;/span&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="150" y="600" width="320" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-11" value="Metrics&lt;div&gt;Repository&lt;/div&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;" vertex="1" parent="1">
+          <mxGeometry x="550" y="575" width="90" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-12" value="" style="shape=flexArrow;endArrow=classic;startArrow=classic;html=1;rounded=0;" edge="1" parent="1">
+          <mxGeometry width="100" height="100" relative="1" as="geometry">
+            <mxPoint x="480" y="639.5" as="sourcePoint" />
+            <mxPoint x="540" y="639.5" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-13" value="Checks" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="165" y="620" width="90" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-14" value="Metrics" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="265" y="620" width="90" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-15" value="Anomalies" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="365" y="620" width="90" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-16" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" target="9Wz8_fLrM5fIn5AwhpO7-6">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="590" as="sourcePoint" />
+            <mxPoint x="455" y="525" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-17" value="Spark Job" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="9Wz8_fLrM5fIn5AwhpO7-16">
+          <mxGeometry x="0.2821" y="-1" relative="1" as="geometry">
+            <mxPoint x="-7" y="10" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-19" value="Spark Connect Server&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="750" width="500" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-20" value="Spark Connect Deequ Plugin" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="425" y="775" width="80" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-21" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="9Wz8_fLrM5fIn5AwhpO7-20" target="9Wz8_fLrM5fIn5AwhpO7-13">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="760" as="sourcePoint" />
+            <mxPoint x="450" y="710" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-23" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="9Wz8_fLrM5fIn5AwhpO7-20" target="9Wz8_fLrM5fIn5AwhpO7-14">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="760" as="sourcePoint" />
+            <mxPoint x="450" y="710" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-24" value="" style="endArrow=classic;html=1;rounded=0;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="9Wz8_fLrM5fIn5AwhpO7-20" target="9Wz8_fLrM5fIn5AwhpO7-15">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="400" y="760" as="sourcePoint" />
+            <mxPoint x="450" y="710" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-25" value="Spark Connect handles all the gRPC requests from all the clients. All the plugins should work together with Connect Server." style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="60" y="785" width="350" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-26" value="Client&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;&lt;br&gt;&lt;/div&gt;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+          <mxGeometry x="130" y="940" width="525" height="130" as="geometry" />
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-29" value="" style="shape=flexArrow;endArrow=classic;html=1;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;exitX=0.637;exitY=-0.037;exitDx=0;exitDy=0;exitPerimeter=0;" edge="1" parent="1" source="9Wz8_fLrM5fIn5AwhpO7-26" target="9Wz8_fLrM5fIn5AwhpO7-20">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="710" y="920" as="sourcePoint" />
+            <mxPoint x="760" y="870" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-30" value="gRPC" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" vertex="1" connectable="0" parent="9Wz8_fLrM5fIn5AwhpO7-29">
+          <mxGeometry x="-0.1336" y="2" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-31" value="Client defines proto messages of Metrics, Analyzers, Checks, etc.&lt;div&gt;&lt;br&gt;&lt;/div&gt;&lt;div&gt;It may be done in any of programming languages that have own SparkConnect client:&lt;/div&gt;&lt;div&gt;- Python&lt;/div&gt;&lt;div&gt;- Java/Scala&lt;/div&gt;&lt;div&gt;- Go&lt;/div&gt;&lt;div&gt;- Rust&lt;/div&gt;&lt;div&gt;- C#&lt;/div&gt;" style="text;html=1;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="150" y="960" width="480" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-34" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="9Wz8_fLrM5fIn5AwhpO7-32">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="490" y="910" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="9Wz8_fLrM5fIn5AwhpO7-32" value="analyzers.proto&lt;div&gt;strategies.proto&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;suite.proro&lt;/div&gt;&lt;div style=&quot;text-align: left;&quot;&gt;...&lt;/div&gt;" style="whiteSpace=wrap;html=1;aspect=fixed;" vertex="1" parent="1">
+          <mxGeometry x="700" y="845" width="130" height="130" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
