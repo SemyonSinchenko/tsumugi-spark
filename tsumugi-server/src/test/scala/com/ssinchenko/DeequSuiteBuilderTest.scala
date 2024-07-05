@@ -37,6 +37,14 @@ class DeequSuiteBuilderTest extends AnyFunSuiteLike with BeforeAndAfterAll {
     )
   }
 
+  test("testProtoToSign") {
+    assert(DeequSuiteBuilder.parseSign(5L, proto.Check.ComparisonSign.GET).apply(5L))
+    assert(DeequSuiteBuilder.parseSign(5.0, proto.Check.ComparisonSign.GT).apply(6.0))
+    assert(DeequSuiteBuilder.parseSign(5.0, proto.Check.ComparisonSign.EQ).apply(5.0))
+    assert(DeequSuiteBuilder.parseSign(5.0, proto.Check.ComparisonSign.LT).apply(4.0))
+    assert(DeequSuiteBuilder.parseSign(5.0, proto.Check.ComparisonSign.LET).apply(5.0))
+  }
+
   test("testProtoToAnalyzer") {
     val sparkSession = SparkSession.getActiveSession.get
     val data = createData(sparkSession)
@@ -85,11 +93,25 @@ class DeequSuiteBuilderTest extends AnyFunSuiteLike with BeforeAndAfterAll {
         )
         .build()
     )
+    val maxLength = DeequSuiteBuilder.parseAnalyzer(
+      proto.Analyzer
+        .newBuilder()
+        .setMaxLength(
+          proto.MaxLength.newBuilder().setColumn("description").build()
+        ).build()
+    )
+    val uniqueValueRatio = DeequSuiteBuilder.parseAnalyzer(
+      proto.Analyzer
+        .newBuilder()
+        .setUniqueValueRatio(
+          proto.UniqueValueRatio.newBuilder().addColumns("id").build()
+        ).build()
+    )
 
     val metrics = VerificationSuite()
       .onData(data)
       .addRequiredAnalyzers(
-        Seq(size, completeness, approxCountDistinct, compliance, columnCount, approxQuantile, sum)
+        Seq(size, completeness, approxCountDistinct, compliance, columnCount, approxQuantile, sum, maxLength, uniqueValueRatio)
       )
       .run()
       .metrics
@@ -104,6 +126,8 @@ class DeequSuiteBuilderTest extends AnyFunSuiteLike with BeforeAndAfterAll {
           case _: analyzers.ColumnCount         => p._2.value.get == 5.0
           case _: analyzers.ApproxQuantile      => p._2.value.get == 5.0
           case _: analyzers.Sum                 => p._2.value.get == 27.0
+          case _: analyzers.MaxLength           => p._2.value.get == 30.0
+          case _: analyzers.UniqueValueRatio    => p._2.value.get == 1.0
         }
       )
     )
