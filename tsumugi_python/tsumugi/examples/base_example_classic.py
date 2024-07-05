@@ -3,16 +3,11 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-from pyspark.sql.connect.client import SparkConnectClient
-from pyspark.sql.connect.dataframe import DataFrame
-from pyspark.sql.connect.plan import LogicalPlan
-from pyspark.sql.connect.proto import Relation
-from pyspark.sql.connect.session import SparkSession
+from pyspark.sql import SparkSession
 
 # TODO: that is a workaround because I'm a newbie in py-proto;
 # The problem is in relative-imports.
 proj_root = Path(__file__).parent.parent.parent
-print(proj_root)
 sys.path.append(proj_root.absolute().__str__())
 sys.path.append(proj_root.joinpath("tsumugi").joinpath("proto").absolute().__str__())
 from tsumugi.proto import analyzers_pb2 as analyzers  # noqa: E402
@@ -20,9 +15,20 @@ from tsumugi.proto import strategies_pb2 as strategies  # noqa: E402, F401
 from tsumugi.proto import suite_pb2 as base  # noqa: E402
 
 if __name__ == "__main__":
-    spark: SparkSession = SparkSession.builder.remote(
-        "sc://localhost:15002"
-    ).getOrCreate()
+    # TODO: This example fails because org.apache.sparkproject base classes are not in CP
+    # See the proposal in Spark Mailing List; will be fixed soon by moving SparkConnect to main Spark Distribution
+    spark: SparkSession = (
+        SparkSession.builder.master("local[1]")
+        .config(
+            "spark.jars",
+            proj_root.parent.joinpath("tsumugi-server")
+            .joinpath("target")
+            .joinpath("tsumugi-server-1.0-SNAPSHOT.jar")
+            .absolute()
+            .__str__(),
+        )
+        .getOrCreate()
+    )
     # Data from https://github.com/awslabs/deequ/blob/master/src/main/scala/com/amazon/deequ/examples/BasicExample.scala
     test_rows = [
         {
@@ -65,7 +71,6 @@ if __name__ == "__main__":
     data.printSchema()
     data.show()
     suite = base.VerificationSuite()
-    suite.data = data._plan.to_proto(spark.client).SerializeToString()
     check = suite.checks.add()
     check.checkLevel = base.CheckLevel.Warning
     check.description = "integrity checks"
@@ -87,21 +92,15 @@ if __name__ == "__main__":
 
     assert suite.IsInitialized()
 
-    class DeequVerification(LogicalPlan):
-        def __init__(self, suite: base.VerificationSuite) -> None:
-            super().__init__(None)
-            self._suite = suite
+    deequ_JVM_builder = spark._jvm.com.ssinchenko.DeequSuiteBuilder
+    result = deequ_JVM_builder.protoToVerificationSuite(data._jdf, suite).run()
 
-        def plan(self, session: SparkConnectClient) -> Relation:
-            plan = self._create_proto_relation()
-            plan.extension.Pack(self._suite)
-            return plan
-
-    tdf = DataFrame.withPlan(DeequVerification(suite=suite), spark)
-    results = tdf.toPandas()
-
-    checks = json.loads(results.loc[0, "results"])
-    metrics = json.loads(results.loc[1, "results"])
+    checks = json.loads(
+        spark._jvm.com.amazon.deequ.VerificationResult.checkResultsAsJson(result)
+    )
+    metrics = json.loads(
+        spark._jvm.com.amazon.deequ.VerificationResult.successMetricsAsJson(result)
+    )
 
     print(json.dumps(checks, indent=1))
     print(json.dumps(metrics, indent=1))
