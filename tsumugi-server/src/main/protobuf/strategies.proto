@@ -1,0 +1,48 @@
+syntax = 'proto3';
+
+package com.ssinchenko.proto;
+
+option java_multiple_files = true;
+option java_package = "com.ssinchenko.proto";
+option java_generate_equals_and_hash = true;
+option go_package = "tsumugi/proto";
+
+message AnomalyDetectionStrategy {
+  oneof strategy {
+    AbsoluteChangeStrategy absolute_change_strategy = 1;
+    BatchNormalStrategy batch_normal_strategy = 2;
+    OnlineNormalStrategy online_normal_strategy = 3;
+    RelativeRateOfChangeStrategy relative_rate_of_change_strategy = 4;
+    SimpleThresholdStrategy simple_thresholds_strategy = 5;
+  }
+}
+
+message AbsoluteChangeStrategy {
+  optional double max_rate_decrease = 1;
+  optional double max_rate_increase = 2;
+  optional int32 order = 3;
+}
+
+message BatchNormalStrategy {
+  optional double lower_deviation_factor = 1;
+  optional double upper_deviation_factor = 2;
+  optional bool include_interval = 3;
+}
+
+message OnlineNormalStrategy {
+  optional double lower_deviation_factor = 1;
+  optional double upper_deviation_factor = 2;
+  optional double ignore_start_percentage = 3;
+  optional bool ignore_anomalies = 4;
+}
+
+message RelativeRateOfChangeStrategy {
+  optional double max_rate_decrease = 1;
+  optional double max_rate_increase = 2;
+  optional int32 order = 3;
+}
+
+message SimpleThresholdStrategy {
+  optional double lower_bound = 1;
+  double upper_bound = 2;
+}

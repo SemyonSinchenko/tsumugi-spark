@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "tsumugi"
+version = "0.1.0"
+description = "PySpark Connect/Classic bindings to AWS Deequ"
+authors = ["semyonsinchenko <ssinchenko@apache.org>"]
+license = "Apache-2.0"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pyspark = {extras = ["connect"], version = "3.5"}
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.5.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

@@ -1,0 +1,100 @@
+syntax = 'proto3';
+
+package com.ssinchenko.proto;
+
+option java_multiple_files = true;
+option java_package = "com.ssinchenko.proto";
+option java_generate_equals_and_hash = true;
+option optimize_for=SPEED;
+option go_package = "tsumugi/proto";
+
+import "analyzers.proto";
+import "strategies.proto";
+// TODO: For an unknown reason proto-dependencies from spark are not working
+// import "spark/connect/base.proto"; // Spark base.proto
+
+enum CheckLevel {
+  Error = 0;
+  Warning = 1;
+}
+
+message Check {
+  CheckLevel checkLevel = 1;
+  string description = 2;
+  repeated Constraint constraints = 3;
+
+  message Constraint {
+    // In Deequ constraint is built from
+    // 1. Analyzer
+    // 2. Assertion that is lambda Double -> Bool or Long -> Bool
+    // 3. Hint (optional)
+    // 4. Name (optional, for a limited amount of Constraints)
+    //
+    // In this message there is the following:
+    // 1. Analyzer
+    // 2. Reference value (Double or Long)
+    // 3. Comparison sign (>, >=, ==, <, <=)
+    // 4. Hint
+    // 5. Name
+    //
+    // TODO: Think about how to extend this message to encode function?
+    Analyzer analyzer = 1;
+    oneof expectation {
+      int64 long_expectation = 2;
+      double double_expectation = 3;
+    }
+    ComparisonSign sign = 4;
+    optional string hint = 5;
+    optional string name = 6;
+  }
+
+  enum ComparisonSign {
+    GT = 0;
+    GET = 1;
+    EQ = 2;
+    LT = 3;
+    LET = 4;
+  }
+}
+
+message AnomalyDetection {
+  AnomalyDetectionStrategy anomaly_detection_strategy = 1;
+  Analyzer analyzer = 2;
+  optional AnomalyCheckConfig config = 3;
+
+  message AnomalyCheckConfig {
+    CheckLevel level = 1;
+    string description = 2;
+    map<string, string> with_tag_values = 3;
+    optional int64 after_date = 4;
+    optional int64 before_date = 5;
+  }
+}
+
+message VerificationSuite {
+  // optional spark.connect.Plan data = 1;
+  optional bytes data = 1; // TODO: Workaround; actually it is a binary representation
+  repeated Check checks = 2;
+  repeated Analyzer required_analyzers = 3; // Analysis in Deequ that is just a wrapper of sequence of Analyzers
+
+  // Anomaly detection part
+  oneof repository {
+    FileSystemRepository file_system_repository = 4;
+    SparkTableRepository spark_table_repository = 5;
+  }
+  optional ResultKey result_key = 6;
+  repeated AnomalyDetection anomaly_detections = 7;
+
+  message FileSystemRepository {
+    string path = 1;
+  }
+
+  message SparkTableRepository {
+    string table_name = 1;
+  }
+
+  message ResultKey {
+    int64 dataset_date = 1;
+    map<string, string> tags = 2;
+  }
+}
