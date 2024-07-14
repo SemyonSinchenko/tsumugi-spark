@@ -49,23 +49,17 @@ class DeequSuiteBuilderTest extends AnyFunSuiteLike with BeforeAndAfterAll {
     val sparkSession = SparkSession.getActiveSession.get
     val data = createData(sparkSession)
 
-    val size =
-      DeequSuiteBuilder.parseAnalyzer(proto.Analyzer.newBuilder().setSize(proto.Size.newBuilder().build()).build())
-    val completeness =
-      DeequSuiteBuilder.parseAnalyzer(
-        proto.Analyzer.newBuilder().setCompleteness(proto.Completeness.newBuilder().setColumn("id").build()).build()
-      )
     val approxCountDistinct = DeequSuiteBuilder.parseAnalyzer(
       proto.Analyzer
         .newBuilder()
         .setApproxCountDistinct(proto.ApproxCountDistinct.newBuilder().setColumn("id").build())
         .build()
     )
-    val compliance = DeequSuiteBuilder.parseAnalyzer(
+    val approxQuantile = DeequSuiteBuilder.parseAnalyzer(
       proto.Analyzer
         .newBuilder()
-        .setCompliance(
-          proto.Compliance.newBuilder().setInstance("Thingy A occ").setPredicate("productName = 'Thingy A'").build()
+        .setApproxQuantile(
+          proto.ApproxQuantile.newBuilder().setColumn("numViews").setQuantile(0.5).build()
         )
         .build()
     )
@@ -77,14 +71,62 @@ class DeequSuiteBuilderTest extends AnyFunSuiteLike with BeforeAndAfterAll {
         )
         .build()
     )
-    val approxQuantile = DeequSuiteBuilder.parseAnalyzer(
+    val completeness =
+      DeequSuiteBuilder.parseAnalyzer(
+        proto.Analyzer.newBuilder().setCompleteness(proto.Completeness.newBuilder().setColumn("id").build()).build()
+      )
+    val compliance = DeequSuiteBuilder.parseAnalyzer(
       proto.Analyzer
         .newBuilder()
-        .setApproxQuantile(
-          proto.ApproxQuantile.newBuilder().setColumn("numViews").setQuantile(0.5).build()
+        .setCompliance(
+          proto.Compliance.newBuilder().setInstance("Thingy A occ").setPredicate("productName = 'Thingy A'").build()
         )
         .build()
     )
+    val correlation = DeequSuiteBuilder.parseAnalyzer(
+      proto.Analyzer
+        .newBuilder()
+        .setCorrelation(
+          proto.Correlation
+            .newBuilder()
+            .setFirstColumn("id")
+            .setSecondColumn("numViews")
+            .build()
+        )
+        .build()
+    )
+    val countDistinct = DeequSuiteBuilder.parseAnalyzer(
+      proto.Analyzer
+        .newBuilder()
+        .setCountDistinct(
+          proto.CountDistinct.newBuilder().addColumns("id").build()
+        )
+        .build()
+    )
+    val distinctness = DeequSuiteBuilder.parseAnalyzer(
+      proto.Analyzer
+        .newBuilder()
+        .setDistinctness(
+          proto.Distinctness
+            .newBuilder()
+            .addColumns("id")
+            .build()
+        )
+        .build()
+    )
+    val entropy = DeequSuiteBuilder.parseAnalyzer(
+      proto.Analyzer
+        .newBuilder()
+        .setEntropy(
+          proto.Entropy
+            .newBuilder()
+            .setColumn("productName")
+            .build()
+        )
+        .build()
+    )
+    val size =
+      DeequSuiteBuilder.parseAnalyzer(proto.Analyzer.newBuilder().setSize(proto.Size.newBuilder().build()).build())
     val sum = DeequSuiteBuilder.parseAnalyzer(
       proto.Analyzer
         .newBuilder()
@@ -98,20 +140,36 @@ class DeequSuiteBuilderTest extends AnyFunSuiteLike with BeforeAndAfterAll {
         .newBuilder()
         .setMaxLength(
           proto.MaxLength.newBuilder().setColumn("description").build()
-        ).build()
+        )
+        .build()
     )
     val uniqueValueRatio = DeequSuiteBuilder.parseAnalyzer(
       proto.Analyzer
         .newBuilder()
         .setUniqueValueRatio(
           proto.UniqueValueRatio.newBuilder().addColumns("id").build()
-        ).build()
+        )
+        .build()
     )
 
     val metrics = VerificationSuite()
       .onData(data)
       .addRequiredAnalyzers(
-        Seq(size, completeness, approxCountDistinct, compliance, columnCount, approxQuantile, sum, maxLength, uniqueValueRatio)
+        Seq(
+          approxCountDistinct,
+          approxQuantile,
+          columnCount,
+          completeness,
+          compliance,
+          correlation,
+          countDistinct,
+          distinctness,
+          entropy,
+          size,
+          sum,
+          maxLength,
+          uniqueValueRatio
+        )
       )
       .run()
       .metrics
@@ -119,12 +177,16 @@ class DeequSuiteBuilderTest extends AnyFunSuiteLike with BeforeAndAfterAll {
     assert(
       metrics.forall(p =>
         p._1 match {
-          case _: analyzers.Size                => p._2.value.get == 5.0
-          case _: analyzers.Completeness        => p._2.value.get == 1.0
           case _: analyzers.ApproxCountDistinct => p._2.value.get == 5.0
-          case _: analyzers.Compliance          => p._2.value.get == 0.2
-          case _: analyzers.ColumnCount         => p._2.value.get == 5.0
           case _: analyzers.ApproxQuantile      => p._2.value.get == 5.0
+          case _: analyzers.ColumnCount         => p._2.value.get == 5.0
+          case _: analyzers.Completeness        => p._2.value.get == 1.0
+          case _: analyzers.Compliance          => p._2.value.get == 0.2
+          case _: analyzers.Correlation         => p._2.value.get.asInstanceOf[Double] > 0.9
+          case _: analyzers.CountDistinct       => p._2.value.get == 5.0
+          case _: analyzers.Distinctness        => p._2.value.get == 1.0
+          case _: analyzers.Entropy             => p._2.value.get.asInstanceOf[Double] > 0.85
+          case _: analyzers.Size                => p._2.value.get == 5.0
           case _: analyzers.Sum                 => p._2.value.get == 27.0
           case _: analyzers.MaxLength           => p._2.value.get == 30.0
           case _: analyzers.UniqueValueRatio    => p._2.value.get == 1.0

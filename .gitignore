@@ -218,3 +218,7 @@ pyrightconfig.json
 
 # Spark Distribution
 dev/spark-*
+
+# Scala
+.metals
+.bloop
