@@ -223,7 +223,8 @@ class DeequSuiteBuilderTest extends AnyFunSuiteLike with BeforeAndAfterAll {
     )
     protoSuiteBuilder.setFileSystemRepository(
       proto.VerificationSuite.FileSystemRepository
-        .newBuilder().setPath("test-file.json")
+        .newBuilder()
+        .setPath("test-file.json")
     )
     protoSuiteBuilder.addAnomalyDetections(
       proto.AnomalyDetection
