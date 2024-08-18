@@ -28,8 +28,8 @@ object DeequSuiteBuilder {
 
   private[ssinchenko] def parseSign[T: Numeric](reference: T, sign: proto.Check.ComparisonSign): T => Boolean = {
     sign match {
-      case proto.Check.ComparisonSign.GET  => (x: T) => implicitly[Numeric[T]].gteq(x, reference)
-      case proto.Check.ComparisonSign.GT => (x: T) => implicitly[Numeric[T]].gt(x, reference)
+      case proto.Check.ComparisonSign.GET => (x: T) => implicitly[Numeric[T]].gteq(x, reference)
+      case proto.Check.ComparisonSign.GT  => (x: T) => implicitly[Numeric[T]].gt(x, reference)
       case proto.Check.ComparisonSign.EQ  => (x: T) => implicitly[Numeric[T]].equiv(x, reference)
       case proto.Check.ComparisonSign.LT  => (x: T) => implicitly[Numeric[T]].lt(x, reference)
       case proto.Check.ComparisonSign.LET => (x: T) => implicitly[Numeric[T]].lteq(x, reference)

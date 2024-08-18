@@ -1,0 +1,29 @@
+name: Tests and code style
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: olafurpg/setup-scala@v11
+      with:
+        java-version: adopt@1.11
+
+    - name: Run scalafmt check
+      run: |
+        cd tsumugi-server
+        sbt scalafmtCheckAll
+
+    - name: Run Tests
+      run: |
+        cd tsumugi-server
+        sbt test
