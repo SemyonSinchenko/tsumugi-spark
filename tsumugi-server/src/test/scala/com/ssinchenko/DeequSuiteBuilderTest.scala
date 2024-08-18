@@ -125,6 +125,14 @@ class DeequSuiteBuilderTest extends AnyFunSuiteLike with BeforeAndAfterAll {
         )
         .build()
     )
+    val maxLength = DeequSuiteBuilder.parseAnalyzer(
+      proto.Analyzer
+        .newBuilder()
+        .setMaxLength(
+          proto.MaxLength.newBuilder().setColumn("description").build()
+        )
+        .build()
+    )
     val size =
       DeequSuiteBuilder.parseAnalyzer(proto.Analyzer.newBuilder().setSize(proto.Size.newBuilder().build()).build())
     val sum = DeequSuiteBuilder.parseAnalyzer(
@@ -132,14 +140,6 @@ class DeequSuiteBuilderTest extends AnyFunSuiteLike with BeforeAndAfterAll {
         .newBuilder()
         .setSum(
           proto.Sum.newBuilder().setColumn("numViews").build()
-        )
-        .build()
-    )
-    val maxLength = DeequSuiteBuilder.parseAnalyzer(
-      proto.Analyzer
-        .newBuilder()
-        .setMaxLength(
-          proto.MaxLength.newBuilder().setColumn("description").build()
         )
         .build()
     )
@@ -219,6 +219,36 @@ class DeequSuiteBuilderTest extends AnyFunSuiteLike with BeforeAndAfterAll {
             .setAnalyzer(proto.Analyzer.newBuilder().setCompleteness(proto.Completeness.newBuilder().setColumn("id")))
             .setSign(proto.Check.ComparisonSign.EQ)
             .setDoubleExpectation(1.0)
+        )
+    )
+    protoSuiteBuilder.setFileSystemRepository(
+      proto.VerificationSuite.FileSystemRepository
+        .newBuilder().setPath("test-file.json")
+    )
+    protoSuiteBuilder.addAnomalyDetections(
+      proto.AnomalyDetection
+        .newBuilder()
+        .setAnalyzer(
+          proto.Analyzer.newBuilder().setSize(proto.Size.newBuilder().build())
+        )
+        .setAnomalyDetectionStrategy(
+          proto.AnomalyDetectionStrategy
+            .newBuilder()
+            .setRelativeRateOfChangeStrategy(
+              proto.RelativeRateOfChangeStrategy
+                .newBuilder()
+                .setMaxRateIncrease(1.2)
+                .setMaxRateDecrease(0.8)
+                .setOrder(1)
+            )
+        )
+        .setConfig(
+          proto.AnomalyDetection.AnomalyCheckConfig
+            .newBuilder()
+            .setLevel(proto.CheckLevel.Warning)
+            .setDescription("My best description")
+            .setBeforeDate(1000)
+            .setAfterDate(0)
         )
     )
 
