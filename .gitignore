@@ -222,3 +222,5 @@ dev/spark-*
 # Scala
 .metals
 .bloop
+.bsp
+.idea
