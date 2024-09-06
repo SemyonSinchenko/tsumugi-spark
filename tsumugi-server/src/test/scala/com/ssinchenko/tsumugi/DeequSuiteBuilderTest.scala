@@ -15,8 +15,7 @@ class DeequSuiteBuilderTest extends ConfTest {
   }
 
   test("testProtoToAnalyzer") {
-    val sparkSession = SparkSession.getActiveSession.get
-    val data = createData(sparkSession)
+    val data = createData(spark)
 
     val approxCountDistinct = DeequSuiteBuilder.parseAnalyzer(
       proto.Analyzer
@@ -163,7 +162,6 @@ class DeequSuiteBuilderTest extends ConfTest {
   }
 
   test("testProtoToVerificationSuite") {
-    val spark = SparkSession.getActiveSession.get
     val data = createData(spark)
 
     val protoSuiteBuilder = proto.VerificationSuite.newBuilder()
