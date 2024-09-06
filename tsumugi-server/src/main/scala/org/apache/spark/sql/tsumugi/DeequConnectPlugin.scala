@@ -26,7 +26,12 @@ class DeequConnectPlugin extends RelationPlugin {
 
       // TODO: pass returnRows here
       val resultDf =
-        DeequUtils.runAndCollectResults(verificationSuiteBuilder, Option(spark), returnRows = false, dataFrame = Option(data))
+        DeequUtils.runAndCollectResults(
+          verificationSuiteBuilder,
+          Option(spark),
+          returnRows = false,
+          dataFrame = Option(data)
+        )
       Option(resultDf.logicalPlan)
     } else {
       Option.empty

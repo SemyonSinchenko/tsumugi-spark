@@ -143,22 +143,22 @@ class DeequSuiteBuilderTest extends ConfTest {
       .run()
       .metrics
 
-      metrics.foreach(p =>
-        p._1 match {
-          case _: analyzers.ApproxCountDistinct => assert(p._2.value.get == 5.0)
-          case _: analyzers.ApproxQuantile      => assert(p._2.value.get == 5.0)
-          case _: analyzers.ColumnCount         => assert(p._2.value.get == 5.0)
-          case _: analyzers.Completeness        => assert(p._2.value.get == 1.0)
-          case _: analyzers.Compliance          => assert(p._2.value.get == 0.2)
-          case _: analyzers.Correlation         => assert(p._2.value.get.asInstanceOf[Double] > 0.9)
-          case _: analyzers.CountDistinct       => assert(p._2.value.get == 5.0)
-          case _: analyzers.Distinctness        => assert(p._2.value.get == 1.0)
-          case _: analyzers.Entropy             => assert(p._2.value.get.asInstanceOf[Double] > 0.85)
-          case _: analyzers.Size                => assert(p._2.value.get == 5.0)
-          case _: analyzers.Sum                 => assert(p._2.value.get == 27.0)
-          case _: analyzers.MaxLength           => assert(p._2.value.get == 31.0)
-          case _: analyzers.UniqueValueRatio    => assert(p._2.value.get == 1.0)
-        }
+    metrics.foreach(p =>
+      p._1 match {
+        case _: analyzers.ApproxCountDistinct => assert(p._2.value.get == 5.0)
+        case _: analyzers.ApproxQuantile      => assert(p._2.value.get == 5.0)
+        case _: analyzers.ColumnCount         => assert(p._2.value.get == 5.0)
+        case _: analyzers.Completeness        => assert(p._2.value.get == 1.0)
+        case _: analyzers.Compliance          => assert(p._2.value.get == 0.2)
+        case _: analyzers.Correlation         => assert(p._2.value.get.asInstanceOf[Double] > 0.9)
+        case _: analyzers.CountDistinct       => assert(p._2.value.get == 5.0)
+        case _: analyzers.Distinctness        => assert(p._2.value.get == 1.0)
+        case _: analyzers.Entropy             => assert(p._2.value.get.asInstanceOf[Double] > 0.85)
+        case _: analyzers.Size                => assert(p._2.value.get == 5.0)
+        case _: analyzers.Sum                 => assert(p._2.value.get == 27.0)
+        case _: analyzers.MaxLength           => assert(p._2.value.get == 31.0)
+        case _: analyzers.UniqueValueRatio    => assert(p._2.value.get == 1.0)
+      }
     )
   }
 

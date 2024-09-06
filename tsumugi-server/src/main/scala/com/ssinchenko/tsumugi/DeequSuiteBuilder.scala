@@ -7,7 +7,12 @@ import com.amazon.deequ.constraints.Constraint
 import com.amazon.deequ.repository.ResultKey
 import com.amazon.deequ.repository.fs.FileSystemMetricsRepository
 import com.amazon.deequ.repository.sparktable.SparkTableMetricsRepository
-import com.amazon.deequ.{AnomalyCheckConfig, VerificationRunBuilder, VerificationRunBuilderWithRepository, VerificationSuite}
+import com.amazon.deequ.{
+  AnomalyCheckConfig,
+  VerificationRunBuilder,
+  VerificationRunBuilderWithRepository,
+  VerificationSuite
+}
 import com.ssinchenko.proto
 import org.apache.spark.sql.DataFrame
 
