@@ -3,6 +3,7 @@ package com.ssinchenko
 import com.amazon.deequ.VerificationSuite
 import com.amazon.deequ.analyzers
 import com.amazon.deequ.checks.CheckStatus
+import com.ssinchenko.tsumugi.DeequSuiteBuilder
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.sql.types.{LongType, StringType, StructField, StructType}
 import org.scalatest.BeforeAndAfterAll
