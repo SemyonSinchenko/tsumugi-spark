@@ -1,4 +1,4 @@
-package com.ssinchenko
+package com.ssinchenko.tsumugi
 
 import com.amazon.deequ.analyzers._
 import com.amazon.deequ.anomalydetection._
@@ -13,6 +13,7 @@ import com.amazon.deequ.{
   VerificationRunBuilderWithRepository,
   VerificationSuite
 }
+import com.ssinchenko.proto
 import org.apache.spark.sql.DataFrame
 
 import scala.jdk.CollectionConverters._
