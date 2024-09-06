@@ -35,7 +35,7 @@ object DeequUtils {
         metricValue = constraint.metric
           .map {
             case DoubleMetric(_, _, _, value, _) => value.getOrElse(-999.0)
-            case HistogramMetric(_, value)       => value.map(_.numberOfBins).getOrElse(-999.0)
+            case HistogramMetric(_, value)       => value.map(_.numberOfBins.asInstanceOf[Double]).getOrElse(-999.0)
             case _                               => -999.0 // TODO: fix it in the future
           }
           .getOrElse(-999.0),
