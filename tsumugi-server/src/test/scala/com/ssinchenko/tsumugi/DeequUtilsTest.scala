@@ -65,6 +65,7 @@ class DeequUtilsTest extends ConfTest {
     val deequSuite = DeequSuiteBuilder.protoToVerificationSuite(data, protoSuiteBuilder.build())
     val deequResults = DeequUtils.runAndCollectResults(deequSuite, Option(sparkSession))
     assert(deequResults.count() == 1)
+    assert(deequResults.columns.length == 4)
   }
 
 }

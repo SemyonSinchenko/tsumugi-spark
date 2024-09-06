@@ -4,7 +4,8 @@ import com.amazon.deequ.checks.{Check, CheckResult}
 import com.amazon.deequ.metrics.{DoubleMetric, HistogramMetric}
 import com.amazon.deequ.{VerificationResult, VerificationRunBuilder}
 import com.ssinchenko.tsumugi.exceptions.DataFrameIsRequiredException
-import org.apache.spark.sql.{Column, DataFrame, SparkSession, functions => F}
+import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
+import org.apache.spark.sql.{Column, DataFrame, Row, SparkSession, functions => F}
 
 private[ssinchenko] case class MetricsAndChecks(
     level: String,
@@ -19,6 +20,8 @@ private[ssinchenko] case class MetricsAndChecks(
 )
 
 object DeequUtils {
+  private val ARRAY_COL: String = "_c_array_col"
+  private val STRUCT_COL: String = "_c_struct_col"
   private def checkResultToCaseClass(pair: (Check, CheckResult)): Seq[MetricsAndChecks] = {
     val checkLevel = pair._1.level
     val checkDescription = pair._1.description
@@ -45,9 +48,18 @@ object DeequUtils {
     })
   }
 
-  private def dataFrameToCol(df: DataFrame): Column = {
-    df.withColumn("_c_struct", F.struct(df.columns.map(F.col): _*))
-      .agg(F.collect_list("_c_struct").alias("_c_array"))("_c_array")
+  private def dataFrameToCol(df: DataFrame): DataFrame = {
+    df.withColumn(STRUCT_COL, F.struct(df.columns.map(F.col): _*))
+      .agg(F.collect_list(STRUCT_COL).alias(ARRAY_COL))
+  }
+
+  private def withColumnFrom(
+      df: DataFrame,
+      from: DataFrame,
+      column: String,
+      alias: Option[String] = None
+  ): DataFrame = {
+    df.crossJoin(from.select(column)).select(df.columns.map(F.col) :+ F.col(column).alias(alias.getOrElse(column)): _*)
   }
 
   /**
@@ -89,13 +101,18 @@ object DeequUtils {
     val checks = VerificationResult.checkResultsAsDataFrame(sparkSession = spark, verificationResult = deequSuite)
     val checkResults = checkResultAsDataFramePatched(deequSuite = deequSuite, sparkSession = sparkSession)
 
-    val baseDf = spark.emptyDataFrame.withColumns(
-      Map.apply(
+    val oneRowDf =
+      spark.createDataFrame(java.util.List.of[Row](Row(1)), StructType(Seq(StructField("status", IntegerType))))
+
+    val baseDf = Map
+      .apply(
         "metrics" -> dataFrameToCol(metrics),
         "checks" -> dataFrameToCol(checks),
         "checkResults" -> dataFrameToCol(checkResults)
       )
-    )
+      .foldLeft(oneRowDf) { case (df: DataFrame, (alias: String, from: DataFrame)) =>
+        withColumnFrom(df, from, ARRAY_COL, Option(alias))
+      }
     if (returnRows) {
       val data = dataFrame match {
         case Some(df) => df
@@ -106,7 +123,7 @@ object DeequUtils {
         verificationResult = deequSuite,
         data = data
       )
-      baseDf.withColumn("rowLevelResults", dataFrameToCol(rowResults))
+      withColumnFrom(baseDf, rowResults, ARRAY_COL, Option("rowLevelResults"))
     } else {
       baseDf
     }
