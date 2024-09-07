@@ -2,8 +2,6 @@ package com.ssinchenko.tsumugi
 
 import com.amazon.deequ.checks.CheckStatus
 import com.amazon.deequ.{VerificationSuite, analyzers}
-import com.ssinchenko.proto
-import org.apache.spark.sql.SparkSession
 
 class DeequSuiteBuilderTest extends ConfTest {
   test("testProtoToSign") {
@@ -15,8 +13,7 @@ class DeequSuiteBuilderTest extends ConfTest {
   }
 
   test("testProtoToAnalyzer") {
-    val sparkSession = SparkSession.getActiveSession.get
-    val data = createData(sparkSession)
+    val data = createData(spark)
 
     val approxCountDistinct = DeequSuiteBuilder.parseAnalyzer(
       proto.Analyzer
@@ -163,7 +160,6 @@ class DeequSuiteBuilderTest extends ConfTest {
   }
 
   test("testProtoToVerificationSuite") {
-    val spark = SparkSession.getActiveSession.get
     val data = createData(spark)
 
     val protoSuiteBuilder = proto.VerificationSuite.newBuilder()

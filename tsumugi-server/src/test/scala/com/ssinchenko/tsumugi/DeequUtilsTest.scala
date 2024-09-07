@@ -1,13 +1,9 @@
 package com.ssinchenko.tsumugi
 
-import com.ssinchenko.proto
-import org.apache.spark.sql.SparkSession
-
 class DeequUtilsTest extends ConfTest {
 
   test("testRunAndCollectResultsOneRow") {
-    val sparkSession = SparkSession.getActiveSession.get
-    val data = createData(sparkSession)
+    val data = createData(spark)
 
     val protoSuiteBuilder = proto.VerificationSuite.newBuilder()
     protoSuiteBuilder.addRequiredAnalyzers(proto.Analyzer.newBuilder().setSize(proto.Size.newBuilder().build()))
@@ -63,7 +59,7 @@ class DeequUtilsTest extends ConfTest {
         )
     )
     val deequSuite = DeequSuiteBuilder.protoToVerificationSuite(data, protoSuiteBuilder.build())
-    val deequResults = DeequUtils.runAndCollectResults(deequSuite, Option(sparkSession))
+    val deequResults = DeequUtils.runAndCollectResults(deequSuite, Option(spark))
     assert(deequResults.count() == 1)
     assert(deequResults.columns.length == 4)
   }

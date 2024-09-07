@@ -57,6 +57,7 @@ Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oD")
 
 // Source directories
 Compile / scalaSource := baseDirectory.value / "src" / "main" / "scala"
+Compile / unmanagedSourceDirectories += (ProtobufConfig / javaSource).value
 Test / scalaSource := baseDirectory.value / "src" / "test" / "scala"
 
 // Protobuf

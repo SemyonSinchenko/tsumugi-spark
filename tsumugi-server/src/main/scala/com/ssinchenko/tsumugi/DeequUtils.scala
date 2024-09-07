@@ -4,8 +4,8 @@ import com.amazon.deequ.checks.{Check, CheckResult}
 import com.amazon.deequ.metrics.{DoubleMetric, HistogramMetric}
 import com.amazon.deequ.{VerificationResult, VerificationRunBuilder}
 import com.ssinchenko.tsumugi.exceptions.DataFrameIsRequiredException
-import org.apache.spark.sql.types.{IntegerType, StringType, StructField, StructType}
-import org.apache.spark.sql.{Column, DataFrame, Row, SparkSession, functions => F}
+import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
+import org.apache.spark.sql.{DataFrame, Row, SparkSession, functions => F}
 
 private[ssinchenko] case class MetricsAndChecks(
     level: String,

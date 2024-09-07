@@ -2,16 +2,9 @@ package com.ssinchenko.tsumugi
 
 import org.apache.spark.sql.types.{LongType, StringType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SparkSession}
-import org.scalatest.BeforeAndAfterAll
 import org.scalatest.funsuite.AnyFunSuiteLike
 
-trait ConfTest extends AnyFunSuiteLike with BeforeAndAfterAll {
-  override def beforeAll(): Unit = {
-    super.beforeAll()
-    val spark = SparkSession.builder().master("local[1]").getOrCreate()
-    spark.sparkContext.setLogLevel("WARN")
-  }
-
+trait ConfTest extends AnyFunSuiteLike with SparkSessionTestWrapper {
   def createData(sparkSession: SparkSession): DataFrame = {
     sparkSession.createDataFrame(
       sparkSession.sparkContext.parallelize(

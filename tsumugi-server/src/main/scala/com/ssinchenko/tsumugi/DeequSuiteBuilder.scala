@@ -13,7 +13,6 @@ import com.amazon.deequ.{
   VerificationRunBuilderWithRepository,
   VerificationSuite
 }
-import com.ssinchenko.proto
 import org.apache.spark.sql.DataFrame
 
 import scala.jdk.CollectionConverters._
