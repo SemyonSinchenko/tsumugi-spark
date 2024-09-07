@@ -5,8 +5,8 @@ managed:
 plugins:
   # Python API
   - remote: buf.build/grpc/python:v1.64.2
-    out: tsumugi_python/tsumugi/proto/
+    out: tsumugi-python/tsumugi/proto/
   - remote: buf.build/protocolbuffers/python:v27.1
-    out: tsumugi_python/tsumugi/proto/
+    out: tsumugi-python/tsumugi/proto/
   - remote: buf.build/protocolbuffers/pyi
-    out: tsumugi_python/tsumugi/proto/
+    out: tsumugi-python/tsumugi/proto/

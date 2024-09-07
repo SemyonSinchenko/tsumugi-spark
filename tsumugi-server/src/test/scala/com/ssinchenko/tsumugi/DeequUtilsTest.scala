@@ -1,7 +1,5 @@
 package com.ssinchenko.tsumugi
 
-import com.ssinchenko.proto
-
 class DeequUtilsTest extends ConfTest {
 
   test("testRunAndCollectResultsOneRow") {

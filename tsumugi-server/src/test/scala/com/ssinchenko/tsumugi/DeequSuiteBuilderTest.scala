@@ -2,8 +2,6 @@ package com.ssinchenko.tsumugi
 
 import com.amazon.deequ.checks.CheckStatus
 import com.amazon.deequ.{VerificationSuite, analyzers}
-import com.ssinchenko.proto
-import org.apache.spark.sql.SparkSession
 
 class DeequSuiteBuilderTest extends ConfTest {
   test("testProtoToSign") {
