@@ -10,7 +10,16 @@ from pyspark.sql.connect.proto import Relation
 from pyspark.sql.connect.session import SparkSession as ConnectSession
 from pyspark.sql.types import StructType
 
-from tsumugi.analyzers import AbstractAnalyzer
+from tsumugi.analyzers import (
+    AbstractAnalyzer,
+    Completeness,
+    ConstraintBuilder,
+    Minimum,
+    Size,
+    UniqueValueRatio,
+)
+from tsumugi.checks import CheckBuilder
+from tsumugi.enums import CheckLevel
 from tsumugi.utils import (
     CHECK_RESULTS_SUB_DF,
     CHECKS_SUB_DF,
@@ -111,6 +120,11 @@ class VerificationRunBuilder:
         self._dataset_date: int | None = None
         self._dataset_tags: dict[str, str] = dict()
         self._anomaly_detectons: list[suite.AnomalyDetection] = list()
+        self._compute_row_results: bool = False
+
+    def with_row_level_results(self) -> Self:
+        self._compute_row_results = True
+        return self
 
     def add_required_analyzer(self, analyzer: AbstractAnalyzer) -> Self:
         self._required_analyzers.append(analyzer)
@@ -226,8 +240,65 @@ class VerificationRunBuilder:
                 ConnectDataFrame.withPlan(DeequSuite(pb_suite=pb_suite), spark)
             )
 
+    def has_size(self, size: int, level: CheckLevel = CheckLevel.Warning) -> Self:
+        return self.add_check(
+            CheckBuilder()
+            .with_level(level)
+            .with_constraint(
+                ConstraintBuilder()
+                .for_analyzer(Size())
+                .should_be_eq_to(float(size))
+                .build()
+            )
+            .build()
+        )
+
+    def is_complete(self, column: str, level: CheckLevel = CheckLevel.Warning) -> Self:
+        return self.add_check(
+            CheckBuilder()
+            .with_level(level)
+            .with_constraint(
+                ConstraintBuilder()
+                .for_analyzer(Completeness(column=column))
+                .should_be_eq_to(1.0)
+                .build()
+            )
+            .build()
+        )
+
+    def is_unique(self, column: str, level: CheckLevel = CheckLevel.Warning) -> Self:
+        return self.add_check(
+            CheckBuilder()
+            .with_level(level)
+            .with_constraint(
+                ConstraintBuilder()
+                .for_analyzer(UniqueValueRatio(columns=[column]))
+                .should_be_eq_to(1.0)
+                .build()
+            )
+            .build()
+        )
+
+    def is_non_negative(
+        self, column: str, level: CheckLevel = CheckLevel.Warning
+    ) -> Self:
+        return self.add_check(
+            CheckBuilder()
+            .with_level(level)
+            .with_constraint(
+                ConstraintBuilder()
+                .for_analyzer(Minimum(column=column))
+                .should_be_geq_than(0.0)
+                .build()
+            )
+            .build()
+        )
+
 
 class VerificationSuite:
+    """Python-deequ compatibility class."""
+
     @staticmethod
     def on_data(data: DataFrame | ConnectDataFrame) -> VerificationRunBuilder:
+        """Return a VerificationRunBuilder for the given DataFrame object."""
         return VerificationRunBuilder(data)

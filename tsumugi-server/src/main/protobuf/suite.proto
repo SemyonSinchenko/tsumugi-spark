@@ -97,4 +97,6 @@ message VerificationSuite {
     int64 dataset_date = 1;
     map<string, string> tags = 2;
   }
+
+  bool compute_row_level_results = 8;
 }
