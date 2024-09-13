@@ -12,5 +12,3 @@ class CheckLevel(str, Enum):
             return suite.CheckLevel.Error
         else:
             return suite.CheckLevel.Warning
-
-

@@ -29,7 +29,7 @@ class DeequConnectPlugin extends RelationPlugin {
         DeequUtils.runAndCollectResults(
           verificationSuiteBuilder,
           Option(spark),
-          returnRows = false,
+          returnRows = protoSuite.getComputeRowLevelResults,
           dataFrame = Option(data)
         )
       Option(resultDf.logicalPlan)
