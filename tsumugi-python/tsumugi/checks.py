@@ -1,4 +1,4 @@
-from typing import Self
+from typing_extensions import Self
 
 from .enums import CheckLevel
 from .proto import suite_pb2 as suite
