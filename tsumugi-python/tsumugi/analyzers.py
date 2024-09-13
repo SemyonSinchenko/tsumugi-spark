@@ -4,9 +4,10 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Collection
+from typing import Self
 
 from .proto import analyzers_pb2 as proto
+from .proto import suite_pb2 as suite
 
 
 class AbstractAnalyzer(ABC):
@@ -524,3 +525,93 @@ class UniqueValueRatio(AbstractAnalyzer):
                 options=self.options._to_proto(),
             )
         )
+
+
+class ConstraintBuilder:
+    def __init__(self) -> None:
+        self._analyzer: AbstractAnalyzer | None = None
+        self._is_long: bool = False
+        self._expected_value: float | int | None = None
+        self._sign: suite.Check.ComparisonSign | None = None
+        self._hint: str | None = None
+        self._name: str | None = None
+
+    def _set_value_and_type(self, val: int | float) -> None:
+        if isinstance(val, int):
+            self._is_long = True
+        else:
+            self._is_long = False
+
+        self._expected_value = val
+
+    def for_analyzer(self, analyzer: AbstractAnalyzer) -> Self:
+        self._analyzer = analyzer
+        return self
+
+    def with_name(self, name: str) -> Self:
+        self._name = name
+        return self
+
+    def with_hint(self, hint: str) -> Self:
+        self._hint = hint
+        return self
+
+    def should_be_gt_than(self, value: int | float) -> Self:
+        self._set_value_and_type(value)
+        self._sign = suite.Check.ComparisonSign.GT
+        return self
+
+    def should_be_geq_than(self, value: int | float) -> Self:
+        self._set_value_and_type(value)
+        self._sign = suite.Check.ComparisonSign.GET
+        return self
+
+    def should_be_eq_to(self, value: int | float) -> Self:
+        self._set_value_and_type(value)
+        self._sign = suite.Check.ComparisonSign.EQ
+        return self
+
+    def should_be_lt_than(self, value: int | float) -> Self:
+        self._set_value_and_type(value)
+        self._sign = suite.Check.ComparisonSign.LT
+        return self
+
+    def should_be_leq_than(self, value: int | float) -> Self:
+        self._set_value_and_type(value)
+        self._sign = suite.Check.ComparisonSign.LET
+
+    def _validate(self) -> None:
+        if self._analyzer is None:
+            raise ValueError("Analyzer is not set")
+        if self._expected_value is None:
+            raise ValueError("Expected value is not set")
+
+    def build(self) -> suite.Check.Constraint:
+        self._validate()
+
+        # for mypy
+        assert self._analyzer is not None
+        assert self._expected_value is not None
+
+        if self._is_long:
+            # for mypy
+            assert isinstance(self._expected_value, int)
+
+            return suite.Check.Constraint(
+                analyzer=self._analyzer._to_proto(),
+                long_expectation=self._expected_value,
+                sign=self._sign,
+                hint=self._hint,
+                name=self._name,
+            )
+        else:
+            # for mypy
+            assert isinstance(self._expected_value, float)
+
+            return suite.Check.Constraint(
+                analyzer=self._analyzer._to_proto(),
+                double_expectation=self._expected_value,
+                sign=self._sign,
+                hint=self._hint,
+                name=self._name,
+            )

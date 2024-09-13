@@ -2,38 +2,11 @@ from dataclasses import dataclass
 
 from pyspark.sql import Row
 
-from .proto.suite_pb2 import Check
-
-
 STATUS_COL = "status"
 METRICS_SUB_DF = "metrics"
 CHECKS_SUB_DF = "checks"
 CHECK_RESULTS_SUB_DF = "checkResults"
 ROW_LEVEL_RESULTS_SUB_DF = "rowLevelResults"
-
-
-class AssertionUtils:
-    """Utility for building assertions."""
-
-    @staticmethod
-    def equal_to() -> Check.ComparisonSign:
-        return Check.ComparisonSign.EQ
-
-    @staticmethod
-    def greater_than() -> Check.ComparisonSign:
-        return Check.ComparisonSign.GT
-
-    @staticmethod
-    def less_than() -> Check.ComparisonSign:
-        return Check.ComparisonSign.LT
-
-    @staticmethod
-    def greater_or_equal() -> Check.ComparisonSign:
-        return Check.ComparisonSign.GET
-
-    @staticmethod
-    def less_or_equal() -> Check.ComparisonSign:
-        return Check.ComparisonSign.LET
 
 
 @dataclass
@@ -103,4 +76,3 @@ class CheckResult:
             constraint_status=row.constraint_status,
             constraint_message=row.constraint_message,
         )
-
