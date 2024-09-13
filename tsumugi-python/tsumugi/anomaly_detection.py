@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Self
+
+from typing_extensions import Self
 
 from .analyzers import AbstractAnalyzer
 from .enums import CheckLevel

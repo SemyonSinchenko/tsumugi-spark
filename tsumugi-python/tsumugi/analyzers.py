@@ -4,7 +4,8 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Self
+
+from typing_extensions import Self
 
 from .proto import analyzers_pb2 as proto
 from .proto import suite_pb2 as suite
@@ -579,6 +580,7 @@ class ConstraintBuilder:
     def should_be_leq_than(self, value: int | float) -> Self:
         self._set_value_and_type(value)
         self._sign = suite.Check.ComparisonSign.LET
+        return self
 
     def _validate(self) -> None:
         if self._analyzer is None:

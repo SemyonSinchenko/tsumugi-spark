@@ -19,7 +19,7 @@ class MetricAndCheckResult:
     metric_entity: str
     metric_value: float
     status: str
-    contstraint: str
+    constraint: str
 
     @staticmethod
     def _from_row(row: Row) -> "MetricAndCheckResult":
@@ -34,7 +34,7 @@ class MetricAndCheckResult:
             metric_entity=row.metricEntity,
             metric_value=row.metricValue,
             status=row.status,
-            contstraint=row.contstraint,
+            constraint=row.constraint,
         )
 
 

@@ -224,3 +224,6 @@ dev/spark-*
 .bloop
 .bsp
 .idea
+
+# Spark
+tmp/*
