@@ -1,5 +1,7 @@
 from typing_extensions import Self
 
+from tsumugi.analyzers import AnalyzerOptions, Completeness, ConstraintBuilder, Size
+
 from .enums import CheckLevel
 from .proto import suite_pb2 as suite
 
@@ -25,6 +27,35 @@ class CheckBuilder:
     def with_constraints(self, constraints_list: list[suite.Check.Constraint]) -> Self:
         self._constraints = constraints_list
         return self
+
+    def has_size(
+        self, expected_size: float, hint: str = "", name: str | None = None
+    ) -> Self:
+        return self.with_constraint(
+            ConstraintBuilder()
+            .for_analyzer(Size())
+            .with_hint(hint)
+            .with_name(name or "Size")
+            .should_be_eq_to(expected_size)
+            .build()
+        )
+
+    def is_complete(
+        self,
+        column: str,
+        hint: str = "",
+        name: str | None = None,
+        where: str | None = None,
+        options: AnalyzerOptions | None = None,
+    ) -> Self:
+        return self.with_constraint(
+            ConstraintBuilder()
+            .for_analyzer(Completeness(column=column, where=where, options=options))
+            .with_hint(hint)
+            .with_name(name or f"isComplete({column})")
+            .should_be_eq_to(1.0)
+            .build()
+        )
 
     def _validate(self) -> None:
         if len(self._constraints) == 0:

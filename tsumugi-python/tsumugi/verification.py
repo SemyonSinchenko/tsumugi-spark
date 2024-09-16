@@ -211,6 +211,14 @@ class VerificationRunBuilder:
     def run_with_spark_session(
         self, spark: SparkSession | ConnectSession
     ) -> VerificationResult:
+        """Run the suite with the provided SparkSession.
+        
+        For the Spark Connect session it will add serialized plan to the
+        Suite and send the message to the Connect Server.
+        
+        For the Spark Classic session it will call JVM directly with suite
+        and with a Java DataFrame.
+        """
         pb_suite = self._build()
         if isinstance(spark, SparkSession):
             assert isinstance(self._data, DataFrame)
@@ -239,60 +247,6 @@ class VerificationRunBuilder:
             return VerificationResult(
                 ConnectDataFrame.withPlan(DeequSuite(pb_suite=pb_suite), spark)
             )
-
-    def has_size(self, size: int, level: CheckLevel = CheckLevel.Warning) -> Self:
-        return self.add_check(
-            CheckBuilder()
-            .with_level(level)
-            .with_constraint(
-                ConstraintBuilder()
-                .for_analyzer(Size())
-                .should_be_eq_to(float(size))
-                .build()
-            )
-            .build()
-        )
-
-    def is_complete(self, column: str, level: CheckLevel = CheckLevel.Warning) -> Self:
-        return self.add_check(
-            CheckBuilder()
-            .with_level(level)
-            .with_constraint(
-                ConstraintBuilder()
-                .for_analyzer(Completeness(column=column))
-                .should_be_eq_to(1.0)
-                .build()
-            )
-            .build()
-        )
-
-    def is_unique(self, column: str, level: CheckLevel = CheckLevel.Warning) -> Self:
-        return self.add_check(
-            CheckBuilder()
-            .with_level(level)
-            .with_constraint(
-                ConstraintBuilder()
-                .for_analyzer(UniqueValueRatio(columns=[column]))
-                .should_be_eq_to(1.0)
-                .build()
-            )
-            .build()
-        )
-
-    def is_non_negative(
-        self, column: str, level: CheckLevel = CheckLevel.Warning
-    ) -> Self:
-        return self.add_check(
-            CheckBuilder()
-            .with_level(level)
-            .with_constraint(
-                ConstraintBuilder()
-                .for_analyzer(Minimum(column=column))
-                .should_be_geq_than(0.0)
-                .build()
-            )
-            .build()
-        )
 
 
 class VerificationSuite:
