@@ -31,6 +31,7 @@ class CheckBuilder:
     def has_size(
         self, expected_size: float, hint: str = "", name: str | None = None
     ) -> Self:
+        """Add a constraint that the DataFrame has size like expected."""
         return self.with_constraint(
             ConstraintBuilder()
             .for_analyzer(Size())
@@ -48,13 +49,71 @@ class CheckBuilder:
         where: str | None = None,
         options: AnalyzerOptions | None = None,
     ) -> Self:
+        """Add a constraint that the column doesn not have missings."""
+        return self.has_completeness(column, 1.0, hint, name, where, options)
+
+    def has_completeness(
+        self,
+        column: str,
+        expected_value: float,
+        hint: str = "",
+        name: str | None = None,
+        where: str | None = None,
+        options: AnalyzerOptions | None = None,
+    ) -> Self:
+        """Add a constraint the the column has an expected part of missings."""
         return self.with_constraint(
             ConstraintBuilder()
-            .for_analyzer(Completeness(column=column, where=where, options=options))
+            .for_analyzer(
+                Completeness(
+                    column=column,
+                    where=where,
+                    options=options or AnalyzerOptions.default(),
+                )
+            )
             .with_hint(hint)
-            .with_name(name or f"isComplete({column})")
-            .should_be_eq_to(1.0)
+            .with_name(name or f"Completeness({column})")
+            .should_be_eq_to(expected_value)
             .build()
+        )
+
+    def are_complete(
+        self,
+        columns: list[str],
+        hint: str = "",
+        name: str | None = None,
+        where: str | None = None,
+        options: AnalyzerOptions | None = None,
+    ) -> Self:
+        """Add a constraint that columns have an expected part of missings."""
+        return self.have_completeness(columns, 1.0, hint, name, where, options)
+
+    def have_completeness(
+        self,
+        columns: list[str],
+        expected_value: float,
+        hint: str = "",
+        name: str | None = None,
+        where: str | None = None,
+        options: AnalyzerOptions | None = None,
+    ) -> Self:
+        """Add a constraint that columns have an expected level of completeness."""
+        return self.with_constraints(
+            [
+                ConstraintBuilder()
+                .for_analyzer(
+                    Completeness(
+                        column=col,
+                        where=where,
+                        options=options or AnalyzerOptions.default(),
+                    )
+                )
+                .with_name(name or f"Completeness({col})")
+                .with_hint(hint)
+                .should_be_eq_to(expected_value)
+                .build()
+                for col in columns
+            ]
         )
 
     def _validate(self) -> None:
