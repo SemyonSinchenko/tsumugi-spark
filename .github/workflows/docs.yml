@@ -37,6 +37,4 @@ jobs:
       - name: Build and Deploy
         run: |
           cd tsumugi-python
-          poetry shell
-          cd ..
-          mkdocs gh-deploy --force
+          poetry run cd .. && mkdocs gh-deploy --force
