@@ -211,13 +211,23 @@ class VerificationRunBuilder:
         if is_classic:
             jvm = spark._jvm
             jdf = self._data._jdf
-            result_jdf = jvm.com.ssinchenko.tsumugi.DeequSuiteBuilder(jdf, pb_suite)
+            deequ_jvm_suite = jvm.com.ssinchenko.tsumugi.DeequSuiteBuilder(
+                jdf,
+                pb_suite,
+            )
+            result_jdf = jvm.com.ssinchenko.tsumugi.DeeqUtils.runAndCollectResults(
+                deequ_jvm_suite,
+                spark._jsparkSession,
+                self._compute_row_results,
+                jdf,
+            )
             return VerificationResult(
                 DataFrame(result_jdf, SQLContext(spark.sparkContext))
             )
         else:
-            data_plan: LogicalPlan = self._data._plan
+            data_plan = self._data._plan
             assert data_plan is not None
+            assert isinstance(data_plan, LogicalPlan)
             pb_suite.data = data_plan.to_proto(spark.client).SerializeToString()
 
             class DeequSuite(LogicalPlan):
