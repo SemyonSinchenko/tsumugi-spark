@@ -21,18 +21,25 @@ class CheckBuilder:
         self._description: str = ""
 
     def with_level(self, level: CheckLevel) -> Self:
+        """Set a level of the Check."""
         self._level = level
         return self
 
     def with_description(self, decription: str) -> Self:
+        """Set a description of the Check."""
         self._description = decription
         return self
 
     def with_constraint(self, constraint: suite.Check.Constraint) -> Self:
+        """Add a constraint to the Check.
+
+        It is recommended to use ConstraintBuilder!
+        """
         self._constraints.append(constraint)
         return self
 
     def with_constraints(self, constraints_list: list[suite.Check.Constraint]) -> Self:
+        """Set constraints. Override existing!"""
         self._constraints = constraints_list
         return self
 
@@ -106,23 +113,25 @@ class CheckBuilder:
         options: AnalyzerOptions | None = None,
     ) -> Self:
         """Add a constraint that columns have an expected level of completeness."""
-        return self.with_constraints(
-            [
-                ConstraintBuilder()
-                .for_analyzer(
-                    Completeness(
-                        column=col,
-                        where=where,
-                        options=options or AnalyzerOptions.default(),
-                    )
+        list_of_constraints = [
+            ConstraintBuilder()
+            .for_analyzer(
+                Completeness(
+                    column=col,
+                    where=where,
+                    options=options or AnalyzerOptions.default(),
                 )
-                .with_name(name or f"Completeness({col})")
-                .with_hint(hint)
-                .should_be_eq_to(expected_value)
-                .build()
-                for col in columns
-            ]
-        )
+            )
+            .with_name(name or f"Completeness({col})")
+            .with_hint(hint)
+            .should_be_eq_to(expected_value)
+            .build()
+            for col in columns
+        ]
+        for constraint in list_of_constraints:
+            self = self.with_constraint(constraint=constraint)
+
+        return self
 
     def is_unique(
         self,
@@ -178,6 +187,7 @@ class CheckBuilder:
             raise ValueError("At least one constraint is required")
 
     def build(self) -> suite.Check:
+        """Build a Check to the protobuf message."""
         return suite.Check(
             checkLevel=self._level,
             description=self._description,

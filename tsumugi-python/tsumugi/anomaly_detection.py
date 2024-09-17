@@ -95,6 +95,8 @@ class SimpleThresholdsStrategy(AbstractStrategy):
 
 
 class AnomalyDetectionBuilder:
+    """Helper object to build AnomalyDetection check."""
+
     def __init__(self) -> None:
         self._strategy: AbstractStrategy | None = None
         self._analyzer: AbstractAnalyzer | None = None
