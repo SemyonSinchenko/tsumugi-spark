@@ -1,0 +1,45 @@
+site_name: Tsumugi
+site_url: "https://semyonsinchenko.github.io/tsumugi-spark/"
+repo_url: "https://github.com/semyonsinchenko/tsumugi-spark"
+repo_name: "semyonsinchenko/tsumugi-spark"
+
+theme:
+  name: material
+  palette:
+  - media: "(prefers-color-scheme: light)"
+    scheme: default
+    toggle:
+      icon: material/brightness-7
+      name: Switch to dark mode
+  - media: "(prefers-color-scheme: dark)"
+    scheme: slate
+    toggle:
+      icon: material/brightness-4
+      name: Switch to light mode
+  features:
+    - navigation.tracking
+    - navigation.instant
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.footer
+    - navigation.indexes
+    - navigation.expand
+    - content.tabs.link
+    - content.code.copy
+    - content.code.select
+
+plugins:
+  - search
+  - section-index
+
+nav:
+  - Home: index.md
+  - Concepts: concepts.md
+
+markdown_extensions:
+    - markdown_include.include:
+        base_path: docs
+    - attr_list
+    - pymdownx.emoji:
+        emoji_index: !!python/name:materialx.emoji.twemoji
+        emoji_generator: !!python/name:materialx.emoji.to_svg

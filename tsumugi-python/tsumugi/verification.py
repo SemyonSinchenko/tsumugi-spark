@@ -40,22 +40,62 @@ class VerificationResult:
 
     @property
     def checks(self) -> tuple[CheckResult]:
-        """Results of checks."""
+        """Results of checks.
+
+        Returns results of all the checks as a collection of dataclasses.
+        Each check can contain multiple Constraints.
+
+        Each check has the following attributes:
+        - check (str): the name of the check
+        - check level (str): the level of the check (Warning, Error)
+        - check status (str): the overall check status (depends of level)
+        - constraint (str): the description of constraint
+        - contraint status (str): the status (Success, Failure)
+        - contraint message (str): resulting message
+        """
         return self._checks
 
     @property
     def metrics(self) -> tuple[MetricResult]:
-        """Computed metrics."""
+        """Computed metrics.
+
+        Returns all the metrics as a collection of dataclasses.
+
+        Each metric contains:
+        - enitity (str): type of the metric (Dataset, Column)
+        - instance (str): "*" in case of Dataset-level metric,
+                          name of the column otherwise
+        - name (str): name of the metric
+        - value (float): the value of the metric
+        """
         return self._metrics
 
     @property
     def check_results(self) -> tuple[MetricAndCheckResult]:
-        """Results of checks with values of the corresponded metric and constraint."""
+        """Results of checks with values of the corresponded metric and constraint.
+
+        Combines results of contraints with the corresponding values
+        and descriptons of metrics. Collection of dataclasses.
+
+        Each element of the collection contains:
+        - level (str): the same as in Check
+        - check description (str): the same as in Check
+        - conatraint message (str): the same as in Check
+        - metric name (str): the name of the related metric
+        - metric instance (str): column name or "*"
+        - metric entity (str): Dataset or Column
+        - metric value (str): the value of the related mtric
+        - status (str): Success / Failure
+        - constraint (str): the description of the constraint
+        """
         return self._check_results
 
     @property
     def row_level_results(self) -> DataFrame | None:
-        """Row-level results as it would be returned by Deequ."""
+        """Row-level results as it would be returned by Deequ.
+
+        The original DataFrame and a boolean status column per each Check.
+        """
         if self._has_row_results:
             return self._row_level_results
         else:
@@ -97,6 +137,8 @@ class VerificationResult:
 
 
 class VerificationRunBuilder:
+    """Helper class that simplify building of the Verification Run object."""
+
     def __init__(self, df: DataFrame | ConnectDataFrame) -> None:
         self._data = df
         self._checks: list[suite.Check] = list()
@@ -109,22 +151,30 @@ class VerificationRunBuilder:
         self._compute_row_results: bool = False
 
     def with_row_level_results(self) -> Self:
+        """Mark that row-level results should be returned."""
         self._compute_row_results = True
         return self
 
     def add_required_analyzer(self, analyzer: AbstractAnalyzer) -> Self:
+        """Add a required analyzer metric of that will be computed anyway."""
         self._required_analyzers.append(analyzer)
         return self
 
     def add_required_analyzers(self, analyzers: list[AbstractAnalyzer]) -> Self:
+        """Set required analyzers. Override existing!"""
         self._required_analyzers = analyzers
         return self
 
     def add_check(self, check: suite.Check) -> Self:
+        """Add a Check object.
+
+        It is recommended to use CheckBuilder!
+        """
         self._checks.append(check)
         return self
 
     def add_checks(self, checks: list[suite.Check]) -> Self:
+        """Set checks. Override exisitng!"""
         self._checks = checks
         return self
 
@@ -134,6 +184,7 @@ class VerificationRunBuilder:
         dataset_date: int,
         dataset_tags: dict[str, str] | None = None,
     ) -> Self:
+        """Add a FileSystem repository and date and tags for the ResultKey."""
         self._table_name = None
         self._path = filepath
         self._dataset_date = dataset_date
@@ -146,6 +197,7 @@ class VerificationRunBuilder:
         dataset_date: int,
         dateset_tags: dict[str, str] | None = None,
     ) -> Self:
+        """Add a Table repository and date and tags for the ResultKey."""
         self._path = None
         self._table_name = table_name
         self._dataset_date = dataset_date
@@ -153,10 +205,15 @@ class VerificationRunBuilder:
         return self
 
     def add_anomaly_detection(self, ad: suite.AnomalyDetection) -> Self:
+        """Add an anomaly detection check.
+
+        It is recommended to use AnomalyDetectionBuilder!
+        """
         self._anomaly_detectons.append(ad)
         return self
 
     def add_anomaly_detections(self, ads: list[suite.AnomalyDetection]) -> Self:
+        """Set anomaly detection checks. Override existing!"""
         self._anomaly_detectons = ads
         return self
 
