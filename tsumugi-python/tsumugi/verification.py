@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing_extensions import Self
 
 from pyspark.sql import DataFrame, SparkSession, SQLContext
 from pyspark.sql import functions as F
@@ -8,18 +7,11 @@ from pyspark.sql.connect.dataframe import DataFrame as ConnectDataFrame
 from pyspark.sql.connect.plan import LogicalPlan
 from pyspark.sql.connect.proto import Relation
 from pyspark.sql.connect.session import SparkSession as ConnectSession
-from pyspark.sql.types import StructType
+from typing_extensions import Self
 
 from tsumugi.analyzers import (
     AbstractAnalyzer,
-    Completeness,
-    ConstraintBuilder,
-    Minimum,
-    Size,
-    UniqueValueRatio,
 )
-from tsumugi.checks import CheckBuilder
-from tsumugi.enums import CheckLevel
 from tsumugi.utils import (
     CHECK_RESULTS_SUB_DF,
     CHECKS_SUB_DF,
@@ -101,13 +93,14 @@ class VerificationResult:
 
     def _get_row_level_results(self, df: DataFrame) -> DataFrame:
         sub_df = df.select(F.explode(F.col(ROW_LEVEL_RESULTS_SUB_DF)).alias("sub_col"))
-        sub_schema = sub_df.schema.fields[0]
-        assert isinstance(sub_schema, StructType)
-        columns_to_select = {
-            cc.name: F.col(f"sub_col.{cc.name}") for cc in sub_schema.fields
-        }
+        # sub_schema = sub_df.schema.fields[0]
+        # assert isinstance(sub_schema, StructType)
+        # columns_to_select = {
+        #     cc.name: F.col(f"sub_col.{cc.name}") for cc in sub_schema.fields
+        # }
 
-        return sub_df.withColumns(columns_to_select).drop("sub_col")
+        # return sub_df.withColumns(columns_to_select).drop("sub_col")
+        return sub_df.select("sub_col.*")
 
 
 class VerificationRunBuilder:
@@ -185,6 +178,7 @@ class VerificationRunBuilder:
         pb_suite = suite.VerificationSuite(
             checks=self._checks,
             required_analyzers=[al._to_proto() for al in self._required_analyzers],
+            compute_row_level_results=self._compute_row_results,
         )
 
         if self._path:
@@ -212,10 +206,10 @@ class VerificationRunBuilder:
         self, spark: SparkSession | ConnectSession
     ) -> VerificationResult:
         """Run the suite with the provided SparkSession.
-        
+
         For the Spark Connect session it will add serialized plan to the
         Suite and send the message to the Connect Server.
-        
+
         For the Spark Classic session it will call JVM directly with suite
         and with a Java DataFrame.
         """

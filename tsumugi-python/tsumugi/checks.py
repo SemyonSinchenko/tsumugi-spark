@@ -1,12 +1,20 @@
 from typing_extensions import Self
 
-from tsumugi.analyzers import AnalyzerOptions, Completeness, ConstraintBuilder, Size
+from tsumugi.analyzers import (
+    AnalyzerOptions,
+    Completeness,
+    ConstraintBuilder,
+    Size,
+    Uniqueness,
+)
 
 from .enums import CheckLevel
 from .proto import suite_pb2 as suite
 
 
 class CheckBuilder:
+    """A helper object to create a constraint."""
+
     def __init__(self) -> None:
         self._level: CheckLevel = CheckLevel.Warning
         self._constraints: list[suite.Check.Constraint] = list()
@@ -114,6 +122,55 @@ class CheckBuilder:
                 .build()
                 for col in columns
             ]
+        )
+
+    def is_unique(
+        self,
+        column: str,
+        hint: str = "",
+        name: str | None = None,
+        where: str | None = None,
+        options: AnalyzerOptions | None = None,
+    ) -> Self:
+        """Create a constraint that the column is unique."""
+        return self.has_uniqueness([column], 1.0, hint, name, where, options)
+
+    def is_primary_key(
+        self,
+        column: str,
+        hint: str = "",
+        name: str | None = None,
+        where: str | None = None,
+        options: AnalyzerOptions | None = None,
+    ) -> Self:
+        """Create a contraint that the column is like a primary key."""
+        return self.is_unique(column, hint, name, where, options).is_complete(
+            column, hint, name, where, options
+        )
+
+    def has_uniqueness(
+        self,
+        columns: list[str],
+        expected_value: float,
+        hint: str = "",
+        name: str | None = None,
+        where: str | None = None,
+        options: AnalyzerOptions | None = None,
+    ) -> Self:
+        """Create a constraint that the given set of columns have an expected level of uniqueness."""
+        return self.with_constraint(
+            ConstraintBuilder()
+            .for_analyzer(
+                Uniqueness(
+                    columns=columns,
+                    where=where,
+                    options=options or AnalyzerOptions.default(),
+                )
+            )
+            .with_name(name or f"Uniquesness{','.join(columns)}")
+            .with_hint(hint)
+            .should_be_eq_to(expected_value)
+            .build()
         )
 
     def _validate(self) -> None:
