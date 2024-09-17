@@ -8,6 +8,9 @@ from enum import Enum
 from typing_extensions import Self
 
 from .proto import analyzers_pb2 as proto
+
+# Is it a protobuf-python bug? Why should I import all the dependencies manually?
+from .proto import strategies_pb2 as strategies  # noqa: F401
 from .proto import suite_pb2 as suite
 
 
@@ -521,6 +524,24 @@ class UniqueValueRatio(AbstractAnalyzer):
     def _to_proto(self) -> proto.Analyzer:
         return proto.Analyzer(
             unique_value_ratio=proto.UniqueValueRatio(
+                columns=self.columns,
+                where=self.where,
+                options=self.options._to_proto(),
+            )
+        )
+
+
+@dataclass
+class Uniqueness(AbstractAnalyzer):
+    """Compute the uniqueness of the columns."""
+
+    columns: list[str] = field(default_factory=list)
+    where: str | None = None
+    options: AnalyzerOptions = AnalyzerOptions.default()
+
+    def _to_proto(self) -> proto.Analyzer:
+        return proto.Analyzer(
+            uniqueness=proto.Uniqueness(
                 columns=self.columns,
                 where=self.where,
                 options=self.options._to_proto(),

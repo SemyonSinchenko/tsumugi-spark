@@ -123,7 +123,9 @@ object DeequUtils {
         verificationResult = deequSuite,
         data = data
       )
-      withColumnFrom(baseDf, rowResults, ARRAY_COL, Option("rowLevelResults"))
+
+      val singleLineRowLevelResults = dataFrameToCol(rowResults)
+      withColumnFrom(baseDf, singleLineRowLevelResults, ARRAY_COL, Option("rowLevelResults"))
     } else {
       baseDf
     }
