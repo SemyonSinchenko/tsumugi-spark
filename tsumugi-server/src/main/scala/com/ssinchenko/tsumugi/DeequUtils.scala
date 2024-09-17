@@ -3,7 +3,6 @@ package com.ssinchenko.tsumugi
 import com.amazon.deequ.checks.{Check, CheckResult}
 import com.amazon.deequ.metrics.{DoubleMetric, HistogramMetric}
 import com.amazon.deequ.{VerificationResult, VerificationRunBuilder}
-import com.ssinchenko.tsumugi.exceptions.DataFrameIsRequiredException
 import org.apache.spark.sql.types.{IntegerType, StructField, StructType}
 import org.apache.spark.sql.{DataFrame, Row, SparkSession, functions => F}
 
@@ -72,10 +71,9 @@ object DeequUtils {
    */
   private[ssinchenko] def checkResultAsDataFramePatched(
       deequSuite: VerificationResult,
-      sparkSession: Option[SparkSession]
+      sparkSession: SparkSession
   ): DataFrame = {
-    val spark = sparkSession.getOrElse(SparkSession.getActiveSession.get)
-    spark.createDataFrame(deequSuite.checkResults.flatMap(checkResultToCaseClass).toSeq).toDF()
+    sparkSession.createDataFrame(deequSuite.checkResults.flatMap(checkResultToCaseClass).toSeq).toDF()
   }
 
   /**
@@ -93,16 +91,15 @@ object DeequUtils {
   private[ssinchenko] def allResultsAsDataFrame(
       deequSuite: VerificationResult,
       returnRows: Boolean = false,
-      sparkSession: Option[SparkSession],
-      dataFrame: Option[DataFrame] = None
+      sparkSession: SparkSession,
+      dataFrame: DataFrame
   ): DataFrame = {
-    val spark = sparkSession.getOrElse(SparkSession.getActiveSession.get)
-    val metrics = VerificationResult.successMetricsAsDataFrame(sparkSession = spark, verificationResult = deequSuite)
-    val checks = VerificationResult.checkResultsAsDataFrame(sparkSession = spark, verificationResult = deequSuite)
+    val metrics = VerificationResult.successMetricsAsDataFrame(sparkSession = sparkSession, verificationResult = deequSuite)
+    val checks = VerificationResult.checkResultsAsDataFrame(sparkSession = sparkSession, verificationResult = deequSuite)
     val checkResults = checkResultAsDataFramePatched(deequSuite = deequSuite, sparkSession = sparkSession)
 
     val oneRowDf =
-      spark.createDataFrame(java.util.List.of[Row](Row(1)), StructType(Seq(StructField("status", IntegerType))))
+      sparkSession.createDataFrame(java.util.List.of[Row](Row(1)), StructType(Seq(StructField("status", IntegerType))))
 
     val baseDf = Map
       .apply(
@@ -114,14 +111,10 @@ object DeequUtils {
         withColumnFrom(df, from, ARRAY_COL, Option(alias))
       }
     if (returnRows) {
-      val data = dataFrame match {
-        case Some(df) => df
-        case None     => throw DataFrameIsRequiredException("DataFrame is require to generate row-level results!")
-      }
-      val rowResults = VerificationResult.rowLevelResultsAsDataFrame(
-        sparkSession = spark,
+     val rowResults = VerificationResult.rowLevelResultsAsDataFrame(
+        sparkSession = sparkSession,
         verificationResult = deequSuite,
-        data = data
+        data = dataFrame
       )
 
       val singleLineRowLevelResults = dataFrameToCol(rowResults)
@@ -145,9 +138,9 @@ object DeequUtils {
    */
   def runAndCollectResults(
       suite: VerificationRunBuilder,
-      sparkSession: Option[SparkSession] = None,
+      sparkSession: SparkSession,
       returnRows: Boolean = false,
-      dataFrame: Option[DataFrame] = None
+      dataFrame: DataFrame
   ): DataFrame = {
     val results = suite.run()
     allResultsAsDataFrame(results, returnRows, sparkSession, dataFrame)

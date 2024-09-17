@@ -1,12 +1,12 @@
+import os
 from dataclasses import dataclass
 
-from pyspark.sql import DataFrame, SparkSession, SQLContext
+from pyspark.sql import DataFrame, SQLContext
 from pyspark.sql import functions as F
 from pyspark.sql.connect.client import SparkConnectClient
 from pyspark.sql.connect.dataframe import DataFrame as ConnectDataFrame
 from pyspark.sql.connect.plan import LogicalPlan
 from pyspark.sql.connect.proto import Relation
-from pyspark.sql.connect.session import SparkSession as ConnectSession
 from typing_extensions import Self
 
 from tsumugi.analyzers import (
@@ -93,13 +93,6 @@ class VerificationResult:
 
     def _get_row_level_results(self, df: DataFrame) -> DataFrame:
         sub_df = df.select(F.explode(F.col(ROW_LEVEL_RESULTS_SUB_DF)).alias("sub_col"))
-        # sub_schema = sub_df.schema.fields[0]
-        # assert isinstance(sub_schema, StructType)
-        # columns_to_select = {
-        #     cc.name: F.col(f"sub_col.{cc.name}") for cc in sub_schema.fields
-        # }
-
-        # return sub_df.withColumns(columns_to_select).drop("sub_col")
         return sub_df.select("sub_col.*")
 
 
@@ -202,30 +195,39 @@ class VerificationRunBuilder:
 
         return pb_suite
 
-    def run_with_spark_session(
-        self, spark: SparkSession | ConnectSession
-    ) -> VerificationResult:
-        """Run the suite with the provided SparkSession.
+    def run(self) -> VerificationResult:
+        """Run the suite.
 
-        For the Spark Connect session it will add serialized plan to the
-        Suite and send the message to the Connect Server.
-
-        For the Spark Classic session it will call JVM directly with suite
-        and with a Java DataFrame.
+        The type of runtime is determined by the session attached to the provided DataFrame.
+        For a Spark Connect session, it will add a serialized plan to the Suite and send the message to the Connect Server.
+        For a Spark Classic session, it will directly call the JVM with the suite and a Java DataFrame.
         """
+        spark = self._data.sparkSession
         pb_suite = self._build()
-        if isinstance(spark, SparkSession):
-            assert isinstance(self._data, DataFrame)
+        is_classic = (os.environ.get("SPARK_CONNECT_MODE_ENABLED") is None) or hasattr(
+            self._data, "_jdf"
+        )
+
+        if is_classic:
             jvm = spark._jvm
             jdf = self._data._jdf
-            result_jdf = jvm.com.ssinchenko.tsumugi.DeequSuiteBuilder(jdf, pb_suite)
+            deequ_jvm_suite = jvm.com.ssinchenko.tsumugi.DeequSuiteBuilder(
+                jdf,
+                pb_suite,
+            )
+            result_jdf = jvm.com.ssinchenko.tsumugi.DeeqUtils.runAndCollectResults(
+                deequ_jvm_suite,
+                spark._jsparkSession,
+                self._compute_row_results,
+                jdf,
+            )
             return VerificationResult(
                 DataFrame(result_jdf, SQLContext(spark.sparkContext))
             )
         else:
-            assert isinstance(self._data, ConnectDataFrame)
             data_plan = self._data._plan
             assert data_plan is not None
+            assert isinstance(data_plan, LogicalPlan)
             pb_suite.data = data_plan.to_proto(spark.client).SerializeToString()
 
             class DeequSuite(LogicalPlan):

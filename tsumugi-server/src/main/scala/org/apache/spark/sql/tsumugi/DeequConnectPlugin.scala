@@ -28,9 +28,9 @@ class DeequConnectPlugin extends RelationPlugin {
       val resultDf =
         DeequUtils.runAndCollectResults(
           verificationSuiteBuilder,
-          Option(spark),
+          spark,
           returnRows = protoSuite.getComputeRowLevelResults,
-          dataFrame = Option(data)
+          dataFrame = data
         )
       Option(resultDf.logicalPlan)
     } else {
