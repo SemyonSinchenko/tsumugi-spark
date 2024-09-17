@@ -2,9 +2,13 @@
 
 **_UNDER ACTIVE DEVELOPMENT_**
 
-![](static/tsumugi-spark-logo.png)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/SemyonSinchenko/tsumugi-spark/main/static/tsumugi-spark-logo.png" alt="tsumugi-shiraui" width="600" align="middle"/>
+</p>
 
 **_NOTE:_** _Tsumugi Shiraui is a chimera: a hybrid of Human and Gauna. She combines the chaotic power of Gauna with a Human intillegence and empathia. Like an original character of the Manga "Knights of Sidonia", this project aims to make a hybrid of very powerful but hard to learn and use Deequ Scala Library with a usability and simplicity of Spark Connect (PySpark Connect, Spark Connect Go, Spark Connect Rust, etc.)._
+
+[Documentation](https://semyonsinchenko.github.io/tsumugi-spark/)
 
 ## About
 
