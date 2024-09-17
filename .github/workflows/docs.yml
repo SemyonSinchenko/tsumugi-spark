@@ -35,6 +35,5 @@ jobs:
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           
       - name: Build and Deploy
-        run: |
-          cd tsumugi-python
-          poetry run -C ${{ github.workspace }} mkdocs gh-deploy --force
+        run:
+          poetry run -C ${{ github.workspace }}/tsumugi-python mkdocs gh-deploy --force
