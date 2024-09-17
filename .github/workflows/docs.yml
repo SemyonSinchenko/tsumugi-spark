@@ -24,7 +24,7 @@ jobs:
           poetry-version: 1.8.2
           
       - name: Install dependencies
-        run:
+        run: |
           cd tsumugi-python
           poetry install --with dev
           
@@ -35,7 +35,7 @@ jobs:
           git config user.email 'github-actions[bot]@users.noreply.github.com'
           
       - name: Build and Deploy
-        run:
+        run: |
           cd tsumugi-python
           poetry shell
           cd ..
