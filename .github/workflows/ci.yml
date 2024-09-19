@@ -1,4 +1,4 @@
-name: CI-PYTHON
+name: python-client
 
 on: push
 
