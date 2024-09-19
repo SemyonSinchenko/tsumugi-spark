@@ -1,0 +1,26 @@
+name: CI-PYTHON
+
+on: push
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5 
+      - uses: snok/install-poetry@v1
+
+      - name: install project
+        run: |
+          poetry install --with=dev
+        working-directory: tsumugi-python
+
+      - name: ruff check
+        run: |
+          poetry run ruff check tsumugi
+        working-directory: tsumugi-python
+
+      - name: ruff formatter
+        run: |
+          poetry run ruff format tsumugi
+        working-directory: tsumugi-python
