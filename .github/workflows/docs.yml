@@ -19,7 +19,7 @@ jobs:
           python-version: '3.11'
           
       - name: Set up Poetry
-        uses: abatilo/actions-poetry@v3
+        uses: snok/install-poetry@v1
         with:
           poetry-version: 1.8.2
           
