@@ -24,7 +24,8 @@ jobs:
       - name: Set up Python
         if: startsWith(github.ref, 'refs/tags/')
         uses: actions/setup-python@v5
-        python-version: '3.11'
+        with:
+          python-version: '3.11'
 
       - name: Set up Poetry
         if: startsWith(github.ref, 'refs/tags/')
