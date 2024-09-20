@@ -37,7 +37,6 @@ jobs:
         with:
           append_body: true
           files: |
-            target/tsumugi-server-*.jar
+            tsumugi-server/target/tsumugi-server-*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        working-directory: tsumugi-server
