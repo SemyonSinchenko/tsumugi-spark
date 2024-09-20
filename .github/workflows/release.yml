@@ -1,0 +1,41 @@
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          
+      - name: Create Release tag
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        id: generate_tag
+        with:
+          draft: false
+          prerelease: false
+
+      - name: Build with Maven
+        if: startsWith(github.ref, 'refs/tags/')
+        run: mvn versions:set -DnewVersion=${{ steps.generate_tag.outpur.id }} -DskiptTests clean package
+        working-directory: tsumugi-server
+
+      - name: Upload assets
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          append_body: true
+          files: |
+            target/tsumugi-server-*.jar
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        working-directory: tsumugi-server
