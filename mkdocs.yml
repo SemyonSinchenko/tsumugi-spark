@@ -31,15 +31,43 @@ theme:
 plugins:
   - search
   - section-index
+  - mkdocs-jupyter
+  - gen-files:
+      scripts:
+        - docs/gen_ref_pages.py
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          options:
+            docstring_style: sphinx
+            docstring_options:
+              show_if_no_docstring: true
+            show_source: true
 
 nav:
   - Home: index.md
-  - Concepts: concepts.md
+  - About:
+    - Concepts: "concepts/concepts.md"
+    - Usecases: "concepts/usecases.md"
+  - Python API:
+    - 'Main data structures': "python/main_structures.md"
+    - 'API Reference': "python/reference/SUMMARY.md"
+  - Example Notebooks:
+    - 'Basic usage': "notebooks/basic_example.ipynb"
+    - 'Using predicates': "notebooks/using_where.ipynb"
 
 markdown_extensions:
     - markdown_include.include:
         base_path: docs
     - attr_list
     - pymdownx.emoji:
-        emoji_index: !!python/name:materialx.emoji.twemoji
-        emoji_generator: !!python/name:materialx.emoji.to_svg
+        emoji_index: !!python/name:material.extensions.emoji.twemoji
+        emoji_generator: !!python/name:material.extensions.emoji.to_svg
+    - pymdownx.highlight:
+        anchor_linenums: true
+        line_spans: __span
+        pygments_lang_class: true
+    - pymdownx.inlinehilite
+    - pymdownx.snippets
+    - pymdownx.superfences

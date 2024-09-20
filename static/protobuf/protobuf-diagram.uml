@@ -1,0 +1,390 @@
+@startuml
+scale 1024 width
+left to right direction
+
+class Analyzer {
+  +approx_count_distinct: ApproxCountDistinct
+  +approx_quantile: ApproxQuantile
+  +approx_quantiles: ApproxQuantiles
+  +column_count: ColumnCount
+  +completeness: Completeness
+  +compliance: Compliance
+  +correlation: Correlation
+  +count_distinct: CountDistinct
+  +custom_sql: CustomSql
+  +data_type: DataType
+  +distinctness: Distinctness
+  +entropy: Entropy
+  +exact_quantile: ExactQuantile
+  +histogram: Histogram
+  +kll_sketch: KLLSketch
+  +max_length: MaxLength
+  +maximum: Maximum
+  +mean: Mean
+  +min_length: MinLength
+  +minimum: Minimum
+  +mutual_information: MutualInformation
+  +pattern_match: PatternMatch
+  +ratio_of_sums: RatioOfSums
+  +size: Size
+  +standard_deviation: StandardDeviation
+  +sum: Sum
+  +unique_value_ratio: UniqueValueRatio
+  +uniqueness: Uniqueness
+}
+
+class AnalyzerOptions {
+  +null_behaviour: NullBehaviour
+  +filtered_row_outcome: FilteredRowOutcome
+}
+
+enum NullBehaviour {
+  Ignore
+  EmptyString
+  Fail
+}
+
+enum FilteredRowOutcome {
+  NULL
+  TRUE
+}
+
+class ApproxCountDistinct {
+  +column: string
+  +where: string
+}
+
+class ApproxQuantile {
+  +column: string
+  +quantile: double
+  +relative_error: double
+  +where: string
+}
+
+class ApproxQuantiles {
+  +column: string
+  +quantiles: double[]
+  +relative_error: double
+}
+
+class ColumnCount
+
+class Completeness {
+  +column: string
+  +where: string
+  +options: AnalyzerOptions
+}
+
+class Compliance {
+  +instance: string
+  +predicate: string
+  +where: string
+  +columns: string[]
+  +options: AnalyzerOptions
+}
+
+class Correlation {
+  +first_column: string
+  +second_column: string
+  +where: string
+}
+
+class CountDistinct {
+  +columns: string[]
+}
+
+class CustomSql {
+  +expressions: string
+}
+
+class DataType {
+  +column: string
+  +where: string
+}
+
+class Distinctness {
+  +columns: string[]
+  +where: string
+}
+
+class Entropy {
+  +column: string
+  +where: string
+}
+
+class ExactQuantile {
+  +column: string
+  +quantile: double
+  +where: string
+}
+
+class Histogram {
+  +column: string
+  +max_detail_bins: int
+  +where: string
+  +compute_frequencies_as_ratio: boolean
+  +aggregate_function: AggregateFunction
+}
+
+enum AggregateFunction {
+  Count
+  Sum
+}
+
+class KLLSketch {
+  +column: string
+  +kll_parameters: KLLParameters
+}
+
+class KLLParameters {
+  +sketch_size: int
+  +shrinking_factor: double
+  +number_of_buckets: int
+}
+
+class MaxLength {
+  +column: string
+  +where: string
+  +options: AnalyzerOptions
+}
+
+class Maximum {
+  +column: string
+  +where: string
+  +options: AnalyzerOptions
+}
+
+class Mean {
+  +column: string
+  +where: string
+}
+
+class MinLength {
+  +column: string
+  +where: string
+  +options: AnalyzerOptions
+}
+
+class Minimum {
+  +column: string
+  +where: string
+  +options: AnalyzerOptions
+}
+
+class MutualInformation {
+  +columns: string[]
+  +where: string
+}
+
+class PatternMatch {
+  +column: string
+  +pattern: string
+  +where: string
+  +options: AnalyzerOptions
+}
+
+class RatioOfSums {
+  +numerator: string
+  +denominator: string
+  +where: string
+}
+
+class Size {
+  +where: string
+}
+
+class StandardDeviation {
+  +column: string
+  +where: string
+}
+
+class Sum {
+  +column: string
+  +where: string
+}
+
+class UniqueValueRatio {
+  +columns: string[]
+  +where: string
+  +options: AnalyzerOptions
+}
+
+class Uniqueness {
+  +columns: string[]
+  +where: string
+  +options: AnalyzerOptions
+}
+
+class AnomalyDetectionStrategy {
+  +absolute_change_strategy: AbsoluteChangeStrategy
+  +batch_normal_strategy: BatchNormalStrategy
+  +online_normal_strategy: OnlineNormalStrategy
+  +relative_rate_of_change_strategy: RelativeRateOfChangeStrategy
+  +simple_thresholds_strategy: SimpleThresholdStrategy
+}
+
+class AbsoluteChangeStrategy {
+  +max_rate_decrease: double
+  +max_rate_increase: double
+  +order: int
+}
+
+class BatchNormalStrategy {
+  +lower_deviation_factor: double
+  +upper_deviation_factor: double
+  +include_interval: boolean
+}
+
+class OnlineNormalStrategy {
+  +lower_deviation_factor: double
+  +upper_deviation_factor: double
+  +ignore_start_percentage: double
+  +ignore_anomalies: boolean
+}
+
+class RelativeRateOfChangeStrategy {
+  +max_rate_decrease: double
+  +max_rate_increase: double
+  +order: int
+}
+
+class SimpleThresholdStrategy {
+  +lower_bound: double
+  +upper_bound: double
+}
+
+enum CheckLevel {
+  Error
+  Warning
+}
+
+class Check {
+  +checkLevel: CheckLevel
+  +description: string
+  +constraints: Constraint[]
+}
+
+class Constraint {
+  +analyzer: Analyzer
+  +long_expectation: int64
+  +double_expectation: double
+  +sign: ComparisonSign
+  +hint: string
+  +name: string
+}
+
+enum ComparisonSign {
+  GT
+  GET
+  EQ
+  LT
+  LET
+}
+
+class AnomalyDetection {
+  +anomaly_detection_strategy: AnomalyDetectionStrategy
+  +analyzer: Analyzer
+  +config: AnomalyCheckConfig
+}
+
+class AnomalyCheckConfig {
+  +level: CheckLevel
+  +description: string
+  +with_tag_values: Map<string, string>
+  +after_date: int64
+  +before_date: int64
+}
+
+class VerificationSuite {
+  +data: bytes
+  +checks: Check[]
+  +required_analyzers: Analyzer[]
+  +file_system_repository: FileSystemRepository
+  +spark_table_repository: SparkTableRepository
+  +result_key: ResultKey
+  +anomaly_detections: AnomalyDetection[]
+  +compute_row_level_results: boolean
+}
+
+class FileSystemRepository {
+  +path: string
+}
+
+class SparkTableRepository {
+  +table_name: string
+}
+
+class ResultKey {
+  +dataset_date: int64
+  +tags: Map<string, string>
+}
+
+Analyzer --> ApproxCountDistinct
+Analyzer --> ApproxQuantile
+Analyzer --> ApproxQuantiles
+Analyzer --> ColumnCount
+Analyzer --> Completeness
+Analyzer --> Compliance
+Analyzer --> Correlation
+Analyzer --> CountDistinct
+Analyzer --> CustomSql
+Analyzer --> DataType
+Analyzer --> Distinctness
+Analyzer --> Entropy
+Analyzer --> ExactQuantile
+Analyzer --> Histogram
+Analyzer --> KLLSketch
+Analyzer --> MaxLength
+Analyzer --> Maximum
+Analyzer --> Mean
+Analyzer --> MinLength
+Analyzer --> Minimum
+Analyzer --> MutualInformation
+Analyzer --> PatternMatch
+Analyzer --> RatioOfSums
+Analyzer --> Size
+Analyzer --> StandardDeviation
+Analyzer --> Sum
+Analyzer --> UniqueValueRatio
+Analyzer --> Uniqueness
+
+AnalyzerOptions --> NullBehaviour
+AnalyzerOptions --> FilteredRowOutcome
+
+Completeness --> AnalyzerOptions
+Compliance --> AnalyzerOptions
+MaxLength --> AnalyzerOptions
+Maximum --> AnalyzerOptions
+MinLength --> AnalyzerOptions
+Minimum --> AnalyzerOptions
+PatternMatch --> AnalyzerOptions
+UniqueValueRatio --> AnalyzerOptions
+Uniqueness --> AnalyzerOptions
+
+Histogram --> AggregateFunction
+KLLSketch --> KLLParameters
+
+AnomalyDetectionStrategy --> AbsoluteChangeStrategy
+AnomalyDetectionStrategy --> BatchNormalStrategy
+AnomalyDetectionStrategy --> OnlineNormalStrategy
+AnomalyDetectionStrategy --> RelativeRateOfChangeStrategy
+AnomalyDetectionStrategy --> SimpleThresholdStrategy
+
+Check --> Constraint
+Constraint --> Analyzer
+Constraint --> ComparisonSign
+
+AnomalyDetection --> AnomalyDetectionStrategy
+AnomalyDetection --> Analyzer
+AnomalyDetection --> AnomalyCheckConfig
+
+AnomalyCheckConfig --> CheckLevel
+
+VerificationSuite --> Check
+VerificationSuite --> Analyzer
+VerificationSuite --> FileSystemRepository
+VerificationSuite --> SparkTableRepository
+VerificationSuite --> ResultKey
+VerificationSuite --> AnomalyDetection
+
+@enduml

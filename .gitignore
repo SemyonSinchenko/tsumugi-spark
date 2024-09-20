@@ -227,3 +227,6 @@ dev/spark-*
 
 # Spark
 tmp/*
+
+# Auto-generated
+docs/python/reference/*

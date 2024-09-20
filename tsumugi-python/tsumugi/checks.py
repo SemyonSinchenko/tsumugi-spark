@@ -44,7 +44,7 @@ class CheckBuilder:
         return self
 
     def has_size(
-        self, expected_size: float, hint: str = "", name: str | None = None
+        self, expected_size: int, hint: str = "", name: str | None = None
     ) -> Self:
         """Add a constraint that the DataFrame has size like expected."""
         return self.with_constraint(

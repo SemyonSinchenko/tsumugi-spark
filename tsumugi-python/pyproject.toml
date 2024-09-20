@@ -12,14 +12,18 @@ pyspark = {extras = ["connect"], version = "3.5.2"}
 protobuf = "<5.28"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.5.0"
+ruff = "^0.6.0"
 jupyterlab = "*"
 mkdocs = "^1"
 mkdocs-material-extensions = "*"
 mkdocs-material = "*"
 mkdocs-literate-nav = "*"
+mkdocs-gen-files = "*"
+mkdocstrings-python = "*"
 mkdocs-section-index = "*"
 mkdocs-macros-plugin = "*"
+mkdocs-jupyter = "*"
+markdown-exec = "*"
 markdown-include = "*"
 
 [build-system]
