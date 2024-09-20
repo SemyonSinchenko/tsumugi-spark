@@ -31,23 +31,15 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: snok/install-poetry@v1
           
-      - name: Create Release tag
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        id: generate_tag
-        with:
-          draft: false
-          prerelease: false
-
       - name: Build server with Maven
         if: startsWith(github.ref, 'refs/tags/')
-        run: mvn versions:set -DnewVersion=${{ steps.generate_tag.outputs.id }} -DskipTests --no-transfer-progress clean package
+        run: mvn versions:set -DnewVersion=${{ github.ref_name }} -DskipTests --no-transfer-progress clean package
         working-directory: tsumugi-server
 
       - name: Build client with poetry
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          poetry version ${{ steps.generate_tag.output.id }}
+          poetry version ${{ github.ref_name }}
           poetry build --format sdist
         working-directory: tsumugi-python
 
@@ -55,7 +47,8 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          append_body: true
+          draft: false
+          prerelease: false
           files: |
             tsumugi-server/target/tsumugi-server-*.jar
             tsumugi-python/dist/tsumugi-*.tar.gz
