@@ -4,6 +4,7 @@ Since the project is primarily about creating a wrapper, it adheres to the same 
 
 You can read more about that in the publications by the authors.
 
+- _Schelter, Sebastian, et al. "Automating large-scale data quality verification." Proceedings of the VLDB Endowment 11.12 (2018): 1781-1794._, [link](https://www.amazon.science/publications/automating-large-scale-data-quality-verification?ref=https://githubhelp.com);
 - _Schelter, Sebastian, et al. "Unit testing data with deequ." Proceedings of the 2019 International Conference on Management of Data. 2019._, [link](https://www.amazon.science/publications/unit-testing-data-with-deequ);
 - _Schelter, Sebastian, et al. "Deequ-data quality validation for machine learning pipelines." (2018)._, [link](https://www.amazon.science/publications/deequ-data-quality-validation-for-machine-learning-pipelines);
 

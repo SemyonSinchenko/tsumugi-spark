@@ -1,6 +1,7 @@
 import os
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 
+import pandas as pd
 from pyspark.sql import DataFrame, SQLContext
 from pyspark.sql import functions as F
 from pyspark.sql.connect.client import SparkConnectClient
@@ -100,6 +101,30 @@ class VerificationResult:
             return self._row_level_results
         else:
             return None
+
+    def checks_as_pandas(self) -> pd.DataFrame:
+        """Return checks as a Pandas DataFrame.
+
+        This method construct the new DataFrame each time!
+        If you need it in a loop, it is recommended to cahce an output.
+        """
+        return pd.DataFrame.from_records([asdict(val) for val in self.checks])
+
+    def metrics_as_pandas(self) -> pd.DataFrame:
+        """Return metrics as a Pandas DataFrame.
+
+        This method construct the new DataFrame each time!
+        If you need it in a loop, it is recommended to cahce an output.
+        """
+        return pd.DataFrame.from_records([asdict(val) for val in self.metrics])
+
+    def check_results_as_pandas(self) -> pd.DataFrame:
+        """Return check results as a Pandas DataFrame.
+
+        This method construct the new DataFrame each time!
+        If you need it in a loop, it is recommended to cahce an output.
+        """
+        return pd.DataFrame.from_records([asdict(val) for val in self.check_results])
 
     def _get_checks(self, df: DataFrame) -> tuple[CheckResult]:
         sub_df = df.select(F.explode(F.col(CHECKS_SUB_DF)).alias("sub_col"))

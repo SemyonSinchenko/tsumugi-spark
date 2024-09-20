@@ -107,30 +107,51 @@ class AnomalyDetectionBuilder:
         self._before_date: int | None = None
 
     def for_analyzer(self, analyzer: AbstractAnalyzer) -> Self:
+        """Add an analyzer."""
+
         self._analyzer = analyzer
         return self
 
     def with_strategy(self, strategy: AbstractStrategy) -> Self:
+        """Add a strategy."""
+
         self._strategy = strategy
         return self
 
     def with_check_level(self, level: CheckLevel) -> Self:
+        """Set a severity level."""
+
         self._check_level = level
         return self
 
     def with_description(self, description: str) -> Self:
+        """Add a description."""
+
         self._description = description
         return self
 
     def with_tags(self, tags: dict[str, str]) -> Self:
+        """Add tags."""
+
         self._with_tag_values = tags
         return self
 
     def after_date(self, dt: int) -> Self:
+        """Set a minimal dataset date value
+
+        This value will be used to filter out part of
+        the timeseries of metrics.
+        """
         self._after_date = dt
         return self
 
     def before_date(self, dt: int) -> Self:
+        """Set a maximal dataset date value
+
+        This value will be used to filter out part of
+        the timeseries of metrics.
+        """
+
         self._before_date = dt
         return self
 

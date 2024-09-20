@@ -4,6 +4,7 @@
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from enum import Enum
+from functools import singledispatchmethod
 
 from typing_extensions import Self
 
@@ -558,49 +559,136 @@ class ConstraintBuilder:
         self._hint: str | None = None
         self._name: str | None = None
 
-    def _set_value_and_type(self, val: int | float) -> None:
-        if isinstance(val, int):
-            self._is_long = True
-        else:
-            self._is_long = False
-
-        self._expected_value = val
-
     def for_analyzer(self, analyzer: AbstractAnalyzer) -> Self:
+        """Set an analyzer."""
+
         self._analyzer = analyzer
         return self
 
     def with_name(self, name: str) -> Self:
+        """Set a name of the constraint."""
+
         self._name = name
         return self
 
     def with_hint(self, hint: str) -> Self:
+        """Set a hint for the constraint.
+
+        Hint can be helpful in the case when one needs
+        to realize the reason of the constraint or why did it fail.
+        """
+
         self._hint = hint
         return self
 
-    def should_be_gt_than(self, value: int | float) -> Self:
-        self._set_value_and_type(value)
+    @singledispatchmethod
+    def should_be_gt_than(self, value) -> Self:
+        """Add an assertion that metric > value.
+
+        This result of this methods depends of the passed type!
+        """
+        ...
+
+    @should_be_gt_than.register
+    def _(self, value: int) -> Self:
         self._sign = suite.Check.ComparisonSign.GT
+        self._is_long = True
+        self._expected_value = value
         return self
 
-    def should_be_geq_than(self, value: int | float) -> Self:
-        self._set_value_and_type(value)
+    @should_be_gt_than.register
+    def _(self, value: float) -> Self:
+        self._sign = suite.Check.ComparisonSign.GT
+        self._is_long = False
+        self._expected_value = value
+        return self
+
+    @singledispatchmethod
+    def should_be_geq_than(self, value) -> Self:
+        """Add an assertion that metric >= value.
+
+        This result of this methods depends of the passed type!
+        """
+        ...
+
+    @should_be_geq_than.register
+    def _(self, value: int) -> Self:
         self._sign = suite.Check.ComparisonSign.GET
+        self._is_long = True
+        self._expected_value = value
         return self
 
-    def should_be_eq_to(self, value: int | float) -> Self:
-        self._set_value_and_type(value)
+    @should_be_geq_than.register
+    def _(self, value: float) -> Self:
+        self._sign = suite.Check.ComparisonSign.GET
+        self._is_long = False
+        self._expected_value = value
+        return self
+
+    @singledispatchmethod
+    def should_be_eq_to(self, value) -> Self:
+        """Add an assertion that metric == value.
+
+        This result of this methods depends of the passed type!
+        """
+        ...
+
+    @should_be_eq_to.register
+    def _(self, value: int) -> Self:
         self._sign = suite.Check.ComparisonSign.EQ
+        self._is_long = True
+        self._expected_value = value
         return self
 
-    def should_be_lt_than(self, value: int | float) -> Self:
-        self._set_value_and_type(value)
+    @should_be_eq_to.register
+    def _(self, value: float) -> Self:
+        self._sign = suite.Check.ComparisonSign.EQ
+        self._is_long = False
+        self._expected_value = value
+        return self
+
+    @singledispatchmethod
+    def should_be_lt_than(self, value) -> Self:
+        """Add an assertion that metric < value.
+
+        This result of this methods depends of the passed type!
+        """
+        ...
+
+    @should_be_lt_than.register
+    def _(self, value: int) -> Self:
         self._sign = suite.Check.ComparisonSign.LT
+        self._is_long = True
+        self._expected_value = value
         return self
 
-    def should_be_leq_than(self, value: int | float) -> Self:
-        self._set_value_and_type(value)
+    @should_be_lt_than.register
+    def _(self, value: float) -> Self:
+        self._sign = suite.Check.ComparisonSign.LT
+        self._is_long = False
+        self._expected_value = value
+        return self
+
+    @singledispatchmethod
+    def should_be_leq_than(self, value) -> Self:
+        """Add an assertion that metric <= value.
+
+        This result of this methods depends of the passed type!
+        """
+        ...
+
+    @should_be_leq_than.register
+    def _(self, value: int) -> Self:
         self._sign = suite.Check.ComparisonSign.LET
+        self._is_long = True
+        self._expected_value = value
+        return self
+
+    @should_be_leq_than.register
+    def _(self, value: float) -> Self:
+        self._sign = suite.Check.ComparisonSign.LET
+        self._is_long = False
+        self._expected_value = value
         return self
 
     def _validate(self) -> None:
