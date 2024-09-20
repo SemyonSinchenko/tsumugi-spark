@@ -15,10 +15,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK
+        if: startsWith(github.ref, 'refs/tags/')
         uses: actions/setup-java@v3
         with:
           java-version: '11'
           distribution: 'adopt'
+
+      - name: Set up Python
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: actions/setup-python@v5
+
+      - name: Set up Poetry
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: snok/install-poetry@v1
           
       - name: Create Release tag
         if: startsWith(github.ref, 'refs/tags/')
@@ -28,10 +37,16 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Build with Maven
+      - name: Build server with Maven
         if: startsWith(github.ref, 'refs/tags/')
-        run: mvn versions:set -DnewVersion=${{ steps.generate_tag.outpur.id }} -DskipTests --no-transfer-progress clean package
+        run: mvn versions:set -DnewVersion=${{ steps.generate_tag.outputs.id }} -DskipTests --no-transfer-progress clean package
         working-directory: tsumugi-server
+
+      - name: Build client with poetry
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          poetry version ${{ steps.generate_tag.output.id }}
+          poetry build --format sdist
 
       - name: Upload assets
         if: startsWith(github.ref, 'refs/tags/')
@@ -40,5 +55,6 @@ jobs:
           append_body: true
           files: |
             tsumugi-server/target/tsumugi-server-*.jar
+            tsumugi-python/dist/tsumugi-*.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

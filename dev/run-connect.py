@@ -7,8 +7,6 @@ from pathlib import Path
 
 MVN_BUILD_COMMAND = ["mvn", "clean", "-DskipTests", "package"]
 SPARK_VERSION = "3.5.2"
-DEEQU_VERSION = "2.0.7-spark-3.5"
-PROTOBUF_VERSION = "3.25.1"
 SCALA_VERSION = "2.12"
 TSUMUGI_VERSION = "1.0-SNAPSHOT"
 
@@ -83,38 +81,6 @@ if __name__ == "__main__":
     spark_home = tmp_dir.joinpath(unpackaed_spark_binary)
     os.chdir(spark_home)
 
-    if not spark_home.joinpath(f"deequ-{DEEQU_VERSION}.jar").exists():
-        print(f"Download Deequ {DEEQU_VERSION}...")
-        get_deequ = subprocess.run(
-            [
-                "wget",
-                f"https://repo1.maven.org/maven2/com/amazon/deequ/deequ/{DEEQU_VERSION}/deequ-{DEEQU_VERSION}.jar",
-            ]
-        )
-        if get_deequ.returncode == 0:
-            print("Done.")
-        else:
-            print("Downlad failed.")
-            print("stdout: ", get_deequ.stdout)
-            print("stdeerr: ", get_deequ.stderr)
-            sys.exit(1)
-
-    if not spark_home.joinpath(f"protobuf-java-{PROTOBUF_VERSION}.jar").exists():
-        print(f"Download Protobuf {PROTOBUF_VERSION}...")
-        get_proto = subprocess.run(
-            [
-                "wget",
-                f"https://repo1.maven.org/maven2/com/google/protobuf/protobuf-java/{PROTOBUF_VERSION}/protobuf-java-{PROTOBUF_VERSION}.jar",
-            ]
-        )
-        if get_proto.returncode == 0:
-            print("Done.")
-        else:
-            print("Downlad failed.")
-            print("stdout: ", get_proto.stdout)
-            print("stdeerr: ", get_proto.stderr)
-            sys.exit(1)
-
     tsumugi_jar = (
         scala_root.joinpath("target")
         .joinpath(f"tsumugi-server-{TSUMUGI_VERSION}.jar")
@@ -125,7 +91,7 @@ if __name__ == "__main__":
         "./sbin/start-connect-server.sh",
         "--wait",
         "--jars",
-        f"{tsumugi_jar},protobuf-java-{PROTOBUF_VERSION}.jar,deequ-{DEEQU_VERSION}.jar",
+        f"{tsumugi_jar}",
         "--conf",
         "spark.connect.extensions.relation.classes=org.apache.spark.sql.tsumugi.DeequConnectPlugin",
         "--packages",
