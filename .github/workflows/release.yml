@@ -30,7 +30,7 @@ jobs:
 
       - name: Build with Maven
         if: startsWith(github.ref, 'refs/tags/')
-        run: mvn versions:set -DnewVersion=${{ steps.generate_tag.outpur.id }} -DskiptTests clean package
+        run: mvn versions:set -DnewVersion=${{ steps.generate_tag.outpur.id }} -DskipTests --no-transfer-progress clean package
         working-directory: tsumugi-server
 
       - name: Upload assets
