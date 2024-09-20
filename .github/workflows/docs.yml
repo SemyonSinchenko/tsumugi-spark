@@ -1,4 +1,4 @@
-name: MKDocs deploy
+name: deploy-docs
 
 on:
   push:
