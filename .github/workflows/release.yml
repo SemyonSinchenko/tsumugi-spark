@@ -1,3 +1,5 @@
+name: release-assets
+
 on:
   push:
     tags:
