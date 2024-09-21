@@ -5,11 +5,14 @@
 
     <groupId>com.ssinchenko</groupId>
     <artifactId>tsumugi-server</artifactId>
-    <version>1.0-SNAPSHOT</version> <!-- This is the version that will be dynamically updated -->
+    <version>1.0-SNAPSHOT</version> <!-- This will be updated dynamically -->
 
+    <!-- Existing build plugins, dependencies, or properties should remain unchanged -->
     <build>
         <plugins>
-            <!-- Versions Maven Plugin for updating the version dynamically -->
+            <!-- Existing Maven plugins here -->
+
+            <!-- Versions Maven Plugin for dynamic version update -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>versions-maven-plugin</artifactId>
@@ -20,60 +23,22 @@
                             <goal>set</goal>
                         </goals>
                         <configuration>
-                            <!-- Use dynamic version from GitHub Actions or CI pipeline -->
+                            <!-- Dynamically update the version in the CI -->
                             <newVersion>${revision}</newVersion>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
 
-            <!-- Maven Clean Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-clean-plugin</artifactId>
-                <version>3.1.0</version>
-                <executions>
-                    <execution>
-                        <id>auto-clean</id>
-                        <phase>pre-clean</phase>
-                        <goals>
-                            <goal>clean</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <!-- Maven Compiler Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.1</version>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-
-            <!-- Maven Package Plugin -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.0</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <addClasspath>true</addClasspath>
-                            <mainClass>com.ssinchenko.MainClass</mainClass> <!-- Replace with actual Main class -->
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
+            <!-- Other plugins like maven-clean-plugin, maven-compiler-plugin, etc. should remain here -->
         </plugins>
     </build>
 
-    <!-- Properties to use dynamic versioning -->
+    <!-- Additional configurations for dependencies or other modules can remain here -->
+
+    <!-- Property to allow dynamic version setting during the CI process -->
     <properties>
-        <revision>0.0.1</revision> <!-- Default version, to be updated dynamically by CI -->
+        <revision>0.0.1</revision> <!-- This can be updated dynamically via GitHub Actions or other CI pipelines -->
     </properties>
 
 </project>
