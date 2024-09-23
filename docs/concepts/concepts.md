@@ -61,7 +61,7 @@ Required analyzers are those that will be computed regardless of other factors. 
 
 A constraint in Deequ is a combination of an analyzer and an assertion about an expected value. While Deequ allows users to pass a function `metric -> boolean` as an assertion, Tsumugi does not provide this feature due to problems with serializing lambda functions. Instead, constraints in Tsumugi contain the following information:
 
-- analyzer itslef;
+- analyzer itself;
 - an expected value of the metric;
 - a comparison sign (`<`, `<=`, `==`, `>`, `>=`);
 
