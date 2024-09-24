@@ -141,9 +141,10 @@ object DeequSuiteBuilder {
           if (protoAnalyzer.hasWhere) Some(protoAnalyzer.getWhere) else Option.empty,
           if (protoAnalyzer.hasComputeFrequenciesAsRatio) protoAnalyzer.getComputeFrequenciesAsRatio else true,
           if (protoAnalyzer.hasAggregateFunction) {
-            protoAnalyzer.getAggregateFunction match {
-              case proto.Histogram.AggregateFunction.Count => Histogram.Count
-              case proto.Histogram.AggregateFunction.Sum   => throw new RuntimeException("Sum is not supported yet")
+            val protoAggregate = protoAnalyzer.getAggregateFunction
+            protoAggregate.getAggregateFunctionCase match {
+              case proto.Histogram.AggregateFunction.AggregateFunctionCase.COUNT_AGGREGATE => Histogram.Count
+              case proto.Histogram.AggregateFunction.AggregateFunctionCase.SUM_AGGREGATE  => Histogram.Sum(protoAggregate.getSumAggregate.getAggColumn)
               case _ => throw new RuntimeException("Unknown AggregateFunction type!")
               // TODO: it is possible but tricky to implement the support of Sum; good first issue
             }
