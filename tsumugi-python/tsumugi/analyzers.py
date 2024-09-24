@@ -36,7 +36,7 @@ class AbstractAggregateFunction(ABC):
     """Abstract class Histogram aggregation functions."""
 
     @abstractmethod
-    def to_proto_aggregate(self) -> proto.Histogram.AggregateFunction: ...
+    def _to_proto(self) -> proto.Histogram.AggregateFunction: ...
 
 
 @dataclass
@@ -53,7 +53,7 @@ class SumAggregate(AbstractAggregateFunction):
 class CountAggregate(AbstractAggregateFunction):
     """Computes Histogram Count Aggregation"""
 
-    def to_proto_aggregate(self) -> proto.Analyzer:
+    def _to_proto(self) -> proto.Analyzer:
         return proto.Histogram.AggregateFunction.Count()
 
 
@@ -323,7 +323,7 @@ class Histogram(AbstractAnalyzer):
                 max_detail_bins=self.max_detail_bin,
                 where=self.where,
                 compute_frequencies_as_ratio=self.compute_frequencies_as_ratio,
-                aggregate_function=self.aggregate_function.to_proto_aggregate(),
+                aggregate_function=self.aggregate_function._to_proto(),
             )
         )
 
