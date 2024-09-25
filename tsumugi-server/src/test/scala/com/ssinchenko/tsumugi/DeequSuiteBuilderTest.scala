@@ -1,6 +1,7 @@
 package com.ssinchenko.tsumugi
 
 import com.amazon.deequ.checks.CheckStatus
+import com.amazon.deequ.metrics.{Distribution, DistributionValue}
 import com.amazon.deequ.{VerificationSuite, analyzers}
 
 class DeequSuiteBuilderTest extends ConfTest {
@@ -157,6 +158,101 @@ class DeequSuiteBuilderTest extends ConfTest {
         case _: analyzers.UniqueValueRatio    => assert(p._2.value.get == 1.0)
       }
     )
+  }
+
+  test("testHistogramAggregateFunction") {
+    val data = createData(spark)
+    val histogramSum = DeequSuiteBuilder.parseAnalyzer(
+      proto.Analyzer
+        .newBuilder()
+        .setHistogram(
+          proto.Histogram
+            .newBuilder()
+            .setColumn("productName")
+            .setMaxDetailBins(5)
+            .setComputeFrequenciesAsRatio(true)
+            .setAggregateFunction(
+              proto.Histogram.AggregateFunction
+                .newBuilder()
+                .setSumAggregate(
+                  proto.Histogram.AggregateFunction.Sum
+                    .newBuilder()
+                    .setAggColumn("numViews")
+                    .build()
+                )
+            )
+        ).build()
+    )
+
+    val metric = VerificationSuite()
+      .onData(data)
+      .addRequiredAnalyzer(histogramSum)
+      .run()
+      .metrics
+      .head
+
+    val expectedDistribution = Distribution(
+      Map(
+        "NullValue" -> DistributionValue(5, 0.18518518518518517),
+        "Thingy E" -> DistributionValue(12, 0.4444444444444444),
+        "Thingy D" -> DistributionValue(10, 0.37037037037037035),
+        "Thingy B" -> DistributionValue(0, 0.0),
+        "Thingy A" -> DistributionValue(0, 0.0)
+      ),
+      5
+    )
+    metric._1 match {
+      case analyzers.Histogram(_, _, _, _, _, analyzers.Histogram.Sum(aggColumn))  =>
+        assert(aggColumn == "numViews")
+        assert(metric._2.value.get == expectedDistribution)
+      case _ => fail(s"Expected ${analyzers.Histogram} with ${analyzers.Histogram.Sum} aggregate functions")
+    }
+  }
+
+  test("testHistogramCountAggregateFunction") {
+    val data = createData(spark)
+    val histogramCount = DeequSuiteBuilder.parseAnalyzer(
+      proto.Analyzer
+        .newBuilder()
+        .setHistogram(
+          proto.Histogram
+            .newBuilder()
+            .setColumn("numViews")
+            .setMaxDetailBins(5)
+            .setComputeFrequenciesAsRatio(true)
+            .setAggregateFunction(
+              proto.Histogram.AggregateFunction
+                .newBuilder()
+                .setCountAggregate(
+                  proto.Histogram.AggregateFunction.Count
+                    .newBuilder()
+                    .build()
+                )
+            )
+        ).build()
+    )
+
+    val metric = VerificationSuite()
+      .onData(data)
+      .addRequiredAnalyzer(histogramCount)
+      .run()
+      .metrics
+      .head
+
+    val expectedDistribution = Distribution(
+      Map(
+        "0" -> DistributionValue(2, 0.4),
+        "5" -> DistributionValue(1, 0.2),
+        "10" -> DistributionValue(1, 0.2),
+        "12" -> DistributionValue(1, 0.2)
+      ),
+      4
+    )
+
+    metric._1 match {
+      case analyzers.Histogram(_, _, _, _, _, analyzers.Histogram.Count)  => assert(metric._2.value.get == expectedDistribution)
+      case _ => fail(s"Expected ${analyzers.Histogram} with ${analyzers.Histogram.Count} aggregate functions")
+    }
   }
 
   test("testProtoToVerificationSuite") {
