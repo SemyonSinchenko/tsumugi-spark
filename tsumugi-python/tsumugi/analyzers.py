@@ -1,3 +1,4 @@
+# Docstring of classes were heavily inspired by the
 # docstring from https://github.com/awslabs/python-deequ/blob/master/pydeequ/analyzers.py
 
 from abc import ABC, abstractmethod
