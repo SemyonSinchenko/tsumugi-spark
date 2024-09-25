@@ -324,13 +324,32 @@ class Histogram(_message.Message):
         "compute_frequencies_as_ratio",
         "aggregate_function",
     )
-    class AggregateFunction(int, metaclass=_enum_type_wrapper.EnumTypeWrapper):
-        __slots__ = ()
-        Count: _ClassVar[Histogram.AggregateFunction]
-        Sum: _ClassVar[Histogram.AggregateFunction]
+    class AggregateFunction(_message.Message):
+        __slots__ = ("count_aggregate", "sum_aggregate")
+        class Count(_message.Message):
+            __slots__ = ()
+            def __init__(self) -> None: ...
 
-    Count: Histogram.AggregateFunction
-    Sum: Histogram.AggregateFunction
+        class Sum(_message.Message):
+            __slots__ = ("agg_column",)
+            AGG_COLUMN_FIELD_NUMBER: _ClassVar[int]
+            agg_column: str
+            def __init__(self, agg_column: _Optional[str] = ...) -> None: ...
+
+        COUNT_AGGREGATE_FIELD_NUMBER: _ClassVar[int]
+        SUM_AGGREGATE_FIELD_NUMBER: _ClassVar[int]
+        count_aggregate: Histogram.AggregateFunction.Count
+        sum_aggregate: Histogram.AggregateFunction.Sum
+        def __init__(
+            self,
+            count_aggregate: _Optional[
+                _Union[Histogram.AggregateFunction.Count, _Mapping]
+            ] = ...,
+            sum_aggregate: _Optional[
+                _Union[Histogram.AggregateFunction.Sum, _Mapping]
+            ] = ...,
+        ) -> None: ...
+
     COLUMN_FIELD_NUMBER: _ClassVar[int]
     MAX_DETAIL_BINS_FIELD_NUMBER: _ClassVar[int]
     WHERE_FIELD_NUMBER: _ClassVar[int]
@@ -347,7 +366,9 @@ class Histogram(_message.Message):
         max_detail_bins: _Optional[int] = ...,
         where: _Optional[str] = ...,
         compute_frequencies_as_ratio: bool = ...,
-        aggregate_function: _Optional[_Union[Histogram.AggregateFunction, str]] = ...,
+        aggregate_function: _Optional[
+            _Union[Histogram.AggregateFunction, _Mapping]
+        ] = ...,
     ) -> None: ...
 
 class KLLSketch(_message.Message):

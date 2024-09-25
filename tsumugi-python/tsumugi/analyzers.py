@@ -33,11 +33,29 @@ class FilteredRowOutcome(Enum):
     TRUE = proto.AnalyzerOptions.FilteredRowOutcome.TRUE
 
 
-class AggregateFunction(Enum):
-    """Histogram aggregation functions."""
+class AbstractAggregateFunction(ABC):
+    """Abstract class Histogram aggregation functions."""
 
-    COUNT = proto.Histogram.AggregateFunction.Count
-    SUM = proto.Histogram.AggregateFunction.Sum
+    @abstractmethod
+    def _to_proto(self) -> proto.Histogram.AggregateFunction: ...
+
+
+@dataclass
+class SumAggregate(AbstractAggregateFunction):
+    """Computes Histogram Sum Aggregation"""
+
+    agg_column: str
+
+    def _to_proto(self) -> proto.Analyzer:
+        return proto.Histogram.AggregateFunction.Sum(agg_column=self.agg_column)
+
+
+@dataclass
+class CountAggregate(AbstractAggregateFunction):
+    """Computes Histogram Count Aggregation"""
+
+    def _to_proto(self) -> proto.Analyzer:
+        return proto.Histogram.AggregateFunction.Count()
 
 
 @dataclass
@@ -297,7 +315,7 @@ class Histogram(AbstractAnalyzer):
     max_detail_bin: int | None = None
     where: str | None = None
     compute_frequencies_as_ratio: bool = True
-    aggregate_function: AggregateFunction = AggregateFunction.COUNT
+    aggregate_function: AbstractAggregateFunction = CountAggregate()
 
     def _to_proto(self) -> proto.Analyzer:
         return proto.Analyzer(
@@ -306,7 +324,7 @@ class Histogram(AbstractAnalyzer):
                 max_detail_bins=self.max_detail_bin,
                 where=self.where,
                 compute_frequencies_as_ratio=self.compute_frequencies_as_ratio,
-                aggregate_function=self.aggregate_function.value,
+                aggregate_function=self.aggregate_function._to_proto(),
             )
         )
 
@@ -322,9 +340,9 @@ class KLLSketch(AbstractAnalyzer):
         return proto.Analyzer(
             kll_sketch=proto.KLLSketch(
                 column=self.column,
-                kll_parameters=self.kll_parameters._to_proto()
-                if self.kll_parameters
-                else None,
+                kll_parameters=(
+                    self.kll_parameters._to_proto() if self.kll_parameters else None
+                ),
             )
         )
 

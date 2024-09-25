@@ -136,9 +136,16 @@ message Histogram {
   optional bool compute_frequencies_as_ratio = 4;
   optional AggregateFunction aggregate_function = 5;
 
-  enum AggregateFunction {
-    Count = 0;
-    Sum = 1;
+  message AggregateFunction {
+    oneof aggregate_function {
+      Count count_aggregate = 1;
+      Sum sum_aggregate = 2;
+    }
+    message Count {}
+
+    message Sum {
+      string agg_column = 1;
+    }
   }
 }
 
