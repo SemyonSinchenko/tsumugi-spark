@@ -146,7 +146,6 @@ object DeequSuiteBuilder {
               case proto.Histogram.AggregateFunction.AggregateFunctionCase.COUNT_AGGREGATE => Histogram.Count
               case proto.Histogram.AggregateFunction.AggregateFunctionCase.SUM_AGGREGATE  => Histogram.Sum(protoAggregate.getSumAggregate.getAggColumn)
               case _ => throw new RuntimeException("Unknown AggregateFunction type!")
-              // TODO: it is possible but tricky to implement the support of Sum; good first issue
             }
           } else Histogram.Count
         )
