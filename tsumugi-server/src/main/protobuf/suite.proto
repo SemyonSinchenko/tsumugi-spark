@@ -10,6 +10,7 @@ option go_package = "tsumugi/proto";
 
 import "analyzers.proto";
 import "strategies.proto";
+import "repository.proto";
 // TODO: For an unknown reason proto-dependencies from spark are not working
 // import "spark/connect/base.proto"; // Spark base.proto
 
@@ -78,25 +79,9 @@ message VerificationSuite {
   repeated Analyzer required_analyzers = 3; // Analysis in Deequ that is just a wrapper of sequence of Analyzers
 
   // Anomaly detection part
-  oneof repository {
-    FileSystemRepository file_system_repository = 4;
-    SparkTableRepository spark_table_repository = 5;
-  }
-  optional ResultKey result_key = 6;
-  repeated AnomalyDetection anomaly_detections = 7;
+  optional Repository repository = 4;
+  optional ResultKey result_key = 5;
+  repeated AnomalyDetection anomaly_detections = 6;
 
-  message FileSystemRepository {
-    string path = 1;
-  }
-
-  message SparkTableRepository {
-    string table_name = 1;
-  }
-
-  message ResultKey {
-    int64 dataset_date = 1;
-    map<string, string> tags = 2;
-  }
-
-  bool compute_row_level_results = 8;
+  bool compute_row_level_results = 7;
 }

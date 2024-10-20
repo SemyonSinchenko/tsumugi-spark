@@ -13,6 +13,9 @@ from typing_extensions import Self
 from tsumugi.analyzers import (
     AbstractAnalyzer,
 )
+
+from tsumugi.repository import MetricRepository
+
 from tsumugi.utils import (
     CHECK_RESULTS_SUB_DF,
     CHECKS_SUB_DF,
@@ -24,6 +27,7 @@ from tsumugi.utils import (
 )
 
 from .proto import suite_pb2 as suite
+from .proto import repository_pb2 as repository
 
 
 @dataclass
@@ -168,8 +172,7 @@ class VerificationRunBuilder:
         self._data = df
         self._checks: list[suite.Check] = list()
         self._required_analyzers: list[AbstractAnalyzer] = list()
-        self._path: str | None = None
-        self._table_name: str | None = None
+        self._repository: MetricRepository | None = None
         self._dataset_date: int | None = None
         self._dataset_tags: dict[str, str] = dict()
         self._anomaly_detectons: list[suite.AnomalyDetection] = list()
@@ -256,24 +259,14 @@ class VerificationRunBuilder:
             compute_row_level_results=self._compute_row_results,
         )
 
-        if self._path:
-            pb_suite.file_system_repository = (
-                suite.VerificationSuite.FileSystemRepository(path=self._path)
-            )
-
-        if self._table_name:
-            pb_suite.spark_table_repository = (
-                suite.VerificationSuite.SparkTableRepository(
-                    table_name=self._table_name
-                )
-            )
-
-        if self._path or self._table_name:
-            pb_suite.result_key = suite.VerificationSuite.ResultKey(
+        if self._repository:
+            pb_suite.repository = self._repository._to_proto()
+            pb_suite.result_key = repository.ResultKey(
                 dataset_date=self._dataset_date, tags=self._dataset_tags
             )
+
             for ad in self._anomaly_detectons:
-                _ad = pb_suite.anomaly_detections.append(ad)
+                pb_suite.anomaly_detections.append(ad)
 
         return pb_suite
 

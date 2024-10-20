@@ -4,18 +4,16 @@ import com.amazon.deequ.analyzers._
 import com.amazon.deequ.anomalydetection._
 import com.amazon.deequ.checks.{Check, CheckLevel}
 import com.amazon.deequ.constraints.Constraint
-import com.amazon.deequ.repository.ResultKey
+import com.amazon.deequ.repository.{MetricsRepository, ResultKey}
 import com.amazon.deequ.repository.fs.FileSystemMetricsRepository
 import com.amazon.deequ.repository.sparktable.SparkTableMetricsRepository
-import com.amazon.deequ.{
-  AnomalyCheckConfig,
-  VerificationRunBuilder,
-  VerificationRunBuilderWithRepository,
-  VerificationSuite
-}
-import org.apache.spark.sql.DataFrame
+import com.amazon.deequ.{AnomalyCheckConfig, VerificationRunBuilder, VerificationRunBuilderWithRepository, VerificationSuite}
+import com.ssinchenko.tsumugi.proto.AnomalyDetection
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
+import scala.collection.convert.ImplicitConversions.`collection AsScalaIterable`
 import scala.jdk.CollectionConverters._
+import scala.util.{Failure, Success, Try}
 
 object DeequSuiteBuilder {
   private[ssinchenko] def parseCheckLevel(checkLevel: proto.CheckLevel): CheckLevel.Value = {
@@ -430,44 +428,50 @@ object DeequSuiteBuilder {
       case _ => throw new RuntimeException(s"Unsupported Strategy ${strategy.getStrategyCase.name}")
     }
   }
+  private[ssinchenko] def parseMetricRepository(spark: SparkSession, verificationSuite: proto.VerificationSuite): Try[MetricsRepository] = {
+    if (!verificationSuite.hasRepository) {
+     Failure(new RuntimeException("For anomaly detection one of FS repository or Table repository should be provided!"))
+    } else {
+      verificationSuite.getRepository.getRepositoryCase match {
+        case proto.Repository.RepositoryCase.FILE_SYSTEM =>
+          Success(FileSystemMetricsRepository(spark, verificationSuite.getRepository.getFileSystem.getPath))
+        case proto.Repository.RepositoryCase.SPARK_TABLE =>
+          Success(new SparkTableMetricsRepository(spark, verificationSuite.getRepository.getSparkTable.getTableName))
+        case _ => Failure(new RuntimeException("For anomaly detection one of FS repository or Table repository should be provided!"))
+      }
+    }
+  }
 
-  def protoToVerificationSuite(data: DataFrame, verificationSuite: proto.VerificationSuite): VerificationRunBuilder = {
+  def protoToVerificationSuite(data: DataFrame, verificationSuite: proto.VerificationSuite): Try[VerificationRunBuilder] = {
     val spark = data.sparkSession
-    var builder = new VerificationSuite().onData(data)
-
-    builder = builder.addChecks(
-      verificationSuite.getChecksList.asScala.map(parseCheck).toSeq
-    )
-
-    builder = builder.addRequiredAnalyzers(
-      verificationSuite.getRequiredAnalyzersList.asScala.map(parseAnalyzer).toSeq
-    )
+    val builder = new VerificationSuite()
+      .onData(data)
+      .addChecks(verificationSuite.getChecksList.asScala.map(parseCheck))
+      .addRequiredAnalyzers(verificationSuite.getRequiredAnalyzersList.asScala.map(parseAnalyzer))
 
     // Anomaly detection branch
+
     if (verificationSuite.hasResultKey) {
-      if (!(verificationSuite.hasFileSystemRepository || verificationSuite.hasSparkTableRepository)) {
-        throw new RuntimeException("For anomaly detection one of FS repository or Table repository should be provided!")
-      }
+      for {
+        repository <- parseMetricRepository(spark, verificationSuite)
+        builderWithRepo <- verificationSuiteToRunBuilderWithRepo(builder, repository, verificationSuite)
+      } yield builderWithRepo
+    } else {
+      Success(builder)
+    }
+  }
 
-      var adBuilder: VerificationRunBuilderWithRepository = null
-      if (verificationSuite.hasFileSystemRepository) {
-        adBuilder =
-          builder.useRepository(FileSystemMetricsRepository(spark, verificationSuite.getFileSystemRepository.getPath))
-      } else {
-        adBuilder = builder.useRepository(
-          new SparkTableMetricsRepository(spark, verificationSuite.getSparkTableRepository.getTableName)
-        )
-      }
-
-      adBuilder = adBuilder.saveOrAppendResult(
+  private def verificationSuiteToRunBuilderWithRepo(builder: VerificationRunBuilder, repository: MetricsRepository, verificationSuite: proto.VerificationSuite): Try[VerificationRunBuilderWithRepository] = Try {
+    val adBuilder = builder
+      .useRepository(repository)
+      .saveOrAppendResult(
         ResultKey(
           verificationSuite.getResultKey.getDatasetDate,
           verificationSuite.getResultKey.getTagsMap.asScala.toMap
         )
       )
-
-      for (i <- 0 to verificationSuite.getAnomalyDetectionsCount) {
-        val ad = verificationSuite.getAnomalyDetections(i)
+    Range(0, verificationSuite.getAnomalyDetectionsCount).foldLeft(adBuilder)((builder, adIdx) => {
+        val ad = verificationSuite.getAnomalyDetections(adIdx)
         val analyzer = parseAnalyzer(ad.getAnalyzer)
         val strategy = parseAnomalyDetectionStrategy(ad.getAnomalyDetectionStrategy)
         val options =
@@ -477,45 +481,41 @@ object DeequSuiteBuilder {
                 parseCheckLevel(ad.getConfig.getLevel),
                 ad.getConfig.getDescription,
                 ad.getConfig.getWithTagValuesMap.asScala.toMap,
-                if (ad.getConfig.hasAfterDate) Some(ad.getConfig.getAfterDate) else Option.empty,
-                if (ad.getConfig.hasBeforeDate) Some(ad.getConfig.getBeforeDate) else Option.empty
+                if (ad.getConfig.hasAfterDate) Some(ad.getConfig.getAfterDate) else None,
+                if (ad.getConfig.hasBeforeDate) Some(ad.getConfig.getBeforeDate) else None
               )
             )
-          else Option.empty
+          else None
         // TODO: How to filter only Analyzer[S, Metric[Double]] instead of this ugly code? Good first issue
         analyzer match {
-          case al: ApproxCountDistinct => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: ApproxQuantile      => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: ColumnCount         => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: Completeness        => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: Compliance          => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: Correlation         => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: CountDistinct       => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: Distinctness        => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: Entropy             => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: ExactQuantile       => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: MaxLength           => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: Maximum             => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: Mean                => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: MinLength           => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: Minimum             => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: MutualInformation   => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: PatternMatch        => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: RatioOfSums         => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: Size                => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: StandardDeviation   => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: Sum                 => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: UniqueValueRatio    => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
-          case al: Uniqueness          => adBuilder = adBuilder.addAnomalyCheck(strategy, al, options)
+          case al: ApproxCountDistinct =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: ApproxQuantile      =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: ColumnCount         =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: Completeness        =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: Compliance          =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: Correlation         =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: CountDistinct       =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: Distinctness        =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: Entropy             =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: ExactQuantile       =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: MaxLength           =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: Maximum             =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: Mean                =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: MinLength           =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: Minimum             =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: MutualInformation   =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: PatternMatch        =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: RatioOfSums         =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: Size                =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: StandardDeviation   =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: Sum                 =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: UniqueValueRatio    =>  builder.addAnomalyCheck(strategy, al, options)
+          case al: Uniqueness          =>  builder.addAnomalyCheck(strategy, al, options)
           case _ =>
             throw new RuntimeException(
               s"AD is supported only for Analyzers with Double metric! Got ${analyzer.getClass.getSimpleName}"
             )
         }
-      }
-      adBuilder
-    } else {
-      builder
-    }
+    })
   }
 }
