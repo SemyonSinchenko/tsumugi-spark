@@ -280,11 +280,14 @@ class DeequSuiteBuilderTest extends ConfTest {
             .setDoubleExpectation(1.0)
         )
     )
-    protoSuiteBuilder.setFileSystemRepository(
-      proto.VerificationSuite.FileSystemRepository
-        .newBuilder()
-        .setPath("test-file.json")
-    )
+    val metricRepo = proto.Repository
+      .newBuilder()
+      .setFileSystem(
+        proto.FileSystemRepository
+          .newBuilder()
+          .setPath("test-file.json")
+      )
+    protoSuiteBuilder.setRepository(metricRepo)
     protoSuiteBuilder.addAnomalyDetections(
       proto.AnomalyDetection
         .newBuilder()
@@ -312,7 +315,7 @@ class DeequSuiteBuilderTest extends ConfTest {
         )
     )
 
-    val deequSuite = DeequSuiteBuilder.protoToVerificationSuite(data, protoSuiteBuilder.build())
+    val deequSuite = DeequSuiteBuilder.protoToVerificationSuite(data, protoSuiteBuilder.build()).get
     val checkResults = deequSuite.run().checkResults
     assert(checkResults.forall(_._2.status == CheckStatus.Success))
   }

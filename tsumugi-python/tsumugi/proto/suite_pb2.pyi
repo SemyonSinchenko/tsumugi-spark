@@ -1,5 +1,6 @@
 import analyzers_pb2 as _analyzers_pb2
 import strategies_pb2 as _strategies_pb2
+import repository_pb2 as _repository_pb2
 from google.protobuf.internal import containers as _containers
 from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
 from google.protobuf import descriptor as _descriptor
@@ -140,51 +141,15 @@ class VerificationSuite(_message.Message):
         "data",
         "checks",
         "required_analyzers",
-        "file_system_repository",
-        "spark_table_repository",
+        "repository",
         "result_key",
         "anomaly_detections",
         "compute_row_level_results",
     )
-    class FileSystemRepository(_message.Message):
-        __slots__ = ("path",)
-        PATH_FIELD_NUMBER: _ClassVar[int]
-        path: str
-        def __init__(self, path: _Optional[str] = ...) -> None: ...
-
-    class SparkTableRepository(_message.Message):
-        __slots__ = ("table_name",)
-        TABLE_NAME_FIELD_NUMBER: _ClassVar[int]
-        table_name: str
-        def __init__(self, table_name: _Optional[str] = ...) -> None: ...
-
-    class ResultKey(_message.Message):
-        __slots__ = ("dataset_date", "tags")
-        class TagsEntry(_message.Message):
-            __slots__ = ("key", "value")
-            KEY_FIELD_NUMBER: _ClassVar[int]
-            VALUE_FIELD_NUMBER: _ClassVar[int]
-            key: str
-            value: str
-            def __init__(
-                self, key: _Optional[str] = ..., value: _Optional[str] = ...
-            ) -> None: ...
-
-        DATASET_DATE_FIELD_NUMBER: _ClassVar[int]
-        TAGS_FIELD_NUMBER: _ClassVar[int]
-        dataset_date: int
-        tags: _containers.ScalarMap[str, str]
-        def __init__(
-            self,
-            dataset_date: _Optional[int] = ...,
-            tags: _Optional[_Mapping[str, str]] = ...,
-        ) -> None: ...
-
     DATA_FIELD_NUMBER: _ClassVar[int]
     CHECKS_FIELD_NUMBER: _ClassVar[int]
     REQUIRED_ANALYZERS_FIELD_NUMBER: _ClassVar[int]
-    FILE_SYSTEM_REPOSITORY_FIELD_NUMBER: _ClassVar[int]
-    SPARK_TABLE_REPOSITORY_FIELD_NUMBER: _ClassVar[int]
+    REPOSITORY_FIELD_NUMBER: _ClassVar[int]
     RESULT_KEY_FIELD_NUMBER: _ClassVar[int]
     ANOMALY_DETECTIONS_FIELD_NUMBER: _ClassVar[int]
     COMPUTE_ROW_LEVEL_RESULTS_FIELD_NUMBER: _ClassVar[int]
@@ -193,9 +158,8 @@ class VerificationSuite(_message.Message):
     required_analyzers: _containers.RepeatedCompositeFieldContainer[
         _analyzers_pb2.Analyzer
     ]
-    file_system_repository: VerificationSuite.FileSystemRepository
-    spark_table_repository: VerificationSuite.SparkTableRepository
-    result_key: VerificationSuite.ResultKey
+    repository: _repository_pb2.Repository
+    result_key: _repository_pb2.ResultKey
     anomaly_detections: _containers.RepeatedCompositeFieldContainer[AnomalyDetection]
     compute_row_level_results: bool
     def __init__(
@@ -205,13 +169,8 @@ class VerificationSuite(_message.Message):
         required_analyzers: _Optional[
             _Iterable[_Union[_analyzers_pb2.Analyzer, _Mapping]]
         ] = ...,
-        file_system_repository: _Optional[
-            _Union[VerificationSuite.FileSystemRepository, _Mapping]
-        ] = ...,
-        spark_table_repository: _Optional[
-            _Union[VerificationSuite.SparkTableRepository, _Mapping]
-        ] = ...,
-        result_key: _Optional[_Union[VerificationSuite.ResultKey, _Mapping]] = ...,
+        repository: _Optional[_Union[_repository_pb2.Repository, _Mapping]] = ...,
+        result_key: _Optional[_Union[_repository_pb2.ResultKey, _Mapping]] = ...,
         anomaly_detections: _Optional[
             _Iterable[_Union[AnomalyDetection, _Mapping]]
         ] = ...,

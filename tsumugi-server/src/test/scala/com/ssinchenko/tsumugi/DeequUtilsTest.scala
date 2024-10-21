@@ -27,11 +27,15 @@ class DeequUtilsTest extends ConfTest {
             .setDoubleExpectation(1.0)
         )
     )
-    protoSuiteBuilder.setFileSystemRepository(
-      proto.VerificationSuite.FileSystemRepository
-        .newBuilder()
-        .setPath("test-file.json")
-    )
+
+    val metricRepo = proto.Repository
+      .newBuilder()
+      .setFileSystem(
+        proto.FileSystemRepository
+          .newBuilder()
+          .setPath("test-file.json")
+      )
+    protoSuiteBuilder.setRepository(metricRepo)
     protoSuiteBuilder.addAnomalyDetections(
       proto.AnomalyDetection
         .newBuilder()
